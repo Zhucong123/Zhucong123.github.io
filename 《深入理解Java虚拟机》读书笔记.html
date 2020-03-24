@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #1E92FB; /*进度条颜色*/
+        height: 3px;
+    }
+    .pace .pace-progress-inner {
+         box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言​    最近一直在学游泳，成功的从一个旱鸭子学成了一个蛙泳健将，不错，上月把《深入理解JAVA虚拟机》看完了，一直说整理一下在本子上面的笔记，到现在发现根据遗忘曲线来说，已经忘记得差不多了，现在整理一下回顾一下，加深记忆，在过几个月在回顾，这是一个技巧。 ​    工作上一直就是需求评审，需求研发，测试，改bug，上线，循环下去，但是这周接触到性能方面的问题，这是搬砖过程中难得的一次经验提升">
+<meta name="keywords" content="读书笔记，JAVA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解Java虚拟机 读书笔记">
+<meta property="og:url" content="https://Zhucong123.github.io/《深入理解Java虚拟机》读书笔记.html">
+<meta property="og:site_name" content="Congz | Blog">
+<meta property="og:description" content="前言​    最近一直在学游泳，成功的从一个旱鸭子学成了一个蛙泳健将，不错，上月把《深入理解JAVA虚拟机》看完了，一直说整理一下在本子上面的笔记，到现在发现根据遗忘曲线来说，已经忘记得差不多了，现在整理一下回顾一下，加深记忆，在过几个月在回顾，这是一个技巧。 ​    工作上一直就是需求评审，需求研发，测试，改bug，上线，循环下去，但是这周接触到性能方面的问题，这是搬砖过程中难得的一次经验提升">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://zhucong123.github.io/《深入理解Java虚拟机》读书笔记/GC%20Root.png">
+<meta property="og:image" content="https://zhucong123.github.io/《深入理解Java虚拟机》读书笔记/引用.png">
+<meta property="og:image" content="https://zhucong123.github.io/《深入理解Java虚拟机》读书笔记/双亲委派模型.png">
+<meta property="og:image" content="https://zhucong123.github.io/《深入理解Java虚拟机》读书笔记/内存模型.png">
+<meta property="og:image" content="https://zhucong123.github.io/《深入理解Java虚拟机》读书笔记/线程状态.png">
+<meta property="og:updated_time" content="2019-12-01T09:29:46.878Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解Java虚拟机 读书笔记">
+<meta name="twitter:description" content="前言​    最近一直在学游泳，成功的从一个旱鸭子学成了一个蛙泳健将，不错，上月把《深入理解JAVA虚拟机》看完了，一直说整理一下在本子上面的笔记，到现在发现根据遗忘曲线来说，已经忘记得差不多了，现在整理一下回顾一下，加深记忆，在过几个月在回顾，这是一个技巧。 ​    工作上一直就是需求评审，需求研发，测试，改bug，上线，循环下去，但是这周接触到性能方面的问题，这是搬砖过程中难得的一次经验提升">
+<meta name="twitter:image" content="https://zhucong123.github.io/《深入理解Java虚拟机》读书笔记/GC%20Root.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Congz | Blog" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://Zhucong123.github.io/《深入理解Java虚拟机》读书笔记">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>深入理解Java虚拟机 读书笔记 | Congz | Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?9462705702727bdff9e7bd016db7169c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Congz | Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静坐常思己过，闲谈莫论人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://Zhucong123.github.io/《深入理解Java虚拟机》读书笔记.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Congz">
+      <meta itemprop="description" content="平平淡淡，任其自然">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Congz | Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深入理解Java虚拟机 读书笔记
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-19 08:43:54" itemprop="dateCreated datePublished" datetime="2019-09-19T08:43:54+08:00">2019-09-19</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-12-01 17:29:46" itemprop="dateModified" datetime="2019-12-01T17:29:46+08:00">2019-12-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/《深入理解Java虚拟机》读书笔记.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/《深入理解Java虚拟机》读书笔记.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">11k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">10 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>​    最近一直在学游泳，成功的从一个旱鸭子学成了一个蛙泳健将，不错，上月把《深入理解JAVA虚拟机》看完了，一直说整理一下在本子上面的笔记，到现在发现根据遗忘曲线来说，已经忘记得差不多了，现在整理一下回顾一下，加深记忆，在过几个月在回顾，这是一个技巧。</p>
+<p>​    工作上一直就是需求评审，需求研发，测试，改bug，上线，循环下去，但是这周接触到性能方面的问题，这是搬砖过程中难得的一次经验提升的机会，其实最后解决的方法也简单，只是加了Redis缓存而已，但是解决性能问题的过程也是挺有意思的</p>
+<p>​    好了，不说了，开始整理笔记</p>
+<h1 id="深入理解JAVA虚拟机"><a href="#深入理解JAVA虚拟机" class="headerlink" title="深入理解JAVA虚拟机"></a>深入理解JAVA虚拟机</h1><p>​    这本书买了很久，一直没有看，也很正常，买了好多书，都没有看，但是最近在看内存，和类加载机制的时候，发现网上的文章很多是来自本书，索性就系统学习一下，网上零碎的知识始终没有详细的了解下来有意思。</p>
+<p>​    这本书是真的不错，值得一读，读完之后，会对JAVA虚拟机有一个全面的了解，不吹了。开始吧。</p>
+<h2 id="自动内存管理"><a href="#自动内存管理" class="headerlink" title="自动内存管理"></a>自动内存管理</h2><h3 id="运行时数据区域"><a href="#运行时数据区域" class="headerlink" title="运行时数据区域"></a>运行时数据区域</h3><p>​    JVM在执行JAVA程序时会将内存分成不同的数据区域</p>
+<p>​    1、程序计数器</p>
+<p>​        字节码的行号指示器，字节码解释器通过计数器的值来选取下一条需要执行的指令</p>
+<p>​    2、Java虚拟机栈</p>
+<p>​        Java方法执行的内存模型，每个方法执行时都会创建一个栈帧用于存储局部变量表，操作数栈，动态链接</p>
+<p>​    3、本地方法栈</p>
+<p>​        为本地的Native方法服务</p>
+<p>​    4、Java堆</p>
+<p>​        所有的线程共享的内存区域，存放对象的实例。并且在这分配内存，该区域是垃圾收集器管理的主要区域，    也成GC堆</p>
+<p>​    5、方法区</p>
+<p>​        同Java堆，线程共享的内存区域，用来存加载的类信息，常量，静态变量</p>
+<p>​    6、运行时常量池</p>
+<p>​        方法区的一部分。static final 修饰常量</p>
+<p>​        运行时常量：运行时确定值</p>
+<p>​        编译期常量：编译器确定值</p>
+<p>​        编译期常量风险：A类常量 a=1</p>
+<p>​                                       B类常量 b=2       B类使用A类 a=1变量         A，B类同时编译，此时a=1 b=2</p>
+<p>​                                                                    修改A类 a=3 只编译A类 此时B类的 a=1   Error</p>
+<p>​    7、直接内存</p>
+<p>​        避免Java堆和Native堆来回复制数据，此时是中间内存</p>
+<h3 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h3><p>确定哪些对象还活着或死去</p>
+<h4 id="确定方法"><a href="#确定方法" class="headerlink" title="确定方法"></a>确定方法</h4><h5 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h5><p>给对象添加引用计数器，引用+1 引用失效-1，为0时，即可被回收</p>
+<p>缺点：难以解决循环引用</p>
+<h5 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h5><p>GC Root起始点，当对象的引用链不可达到GC Root时，对象可被回收</p>
+<p><img src="/《深入理解Java虚拟机》读书笔记/GC Root.png" alt></p>
+<p>可用来做GC Root的对象</p>
+<p>1、虚拟机栈中引用的变量表</p>
+<p>2、方法区中类静态属性引用的对象</p>
+<p>3、常量</p>
+<p>4、Native方法</p>
+<h5 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h5><p>JDK1.2之前只有被引用和没有被引用的状态</p>
+<p>JDK1.2之后引用区分：</p>
+<p>​    强引用（Strong Reference）</p>
+<p>​    软引用（Soft Reference）</p>
+<p>​    弱引用（Weak Reference）</p>
+<p>​    虚引用（Phantom Reference）</p>
+<p>强引用：只要强引用还存在，GC就不会被回收，JAVA虚拟机抛出OOM也不会回收 实现方法 New xx 如果需要回收，则将对象设置为null 例如ArrayList  clear方法将elementData[i]=null</p>
+<p>软引用：软引用会在内存不足的时候去回收，就是在OOM之前，会去清空对象</p>
+<p>​    一般配合队列使用，下面代码就是配合引用队列使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定义一个引用对象        </span></span><br><span class="line">ReferenceQueue&lt;String&gt; referenceQueue = <span class="keyword">new</span> ReferenceQueue&lt;&gt;();</span><br><span class="line">      String str = <span class="keyword">new</span> String(<span class="string">"abc"</span>);</span><br><span class="line">      SoftReference&lt;String&gt; softReference = <span class="keyword">new</span> SoftReference&lt;&gt;(str, referenceQueue);</span><br><span class="line">      str = <span class="keyword">null</span>;</span><br><span class="line">      <span class="comment">// Notify GC   通知GC,此时软引用没有被回收，因为被回收之后，引用队列的poll方法返回队列头元素</span></span><br><span class="line"><span class="comment">//打印输出reference为null,表示软引用没有被回收</span></span><br><span class="line">      System.gc();</span><br><span class="line">      System.out.println(softReference.get()); <span class="comment">// abc</span></span><br><span class="line">      Reference&lt;? extends String&gt; reference = referenceQueue.poll();</span><br><span class="line">      System.out.println(reference); <span class="comment">//null</span></span><br></pre></td></tr></table></figure>
+<p>弱引用：相比软引用，拥有更短的生命周期，无论是内存是否足够，都会被回收，使用方法和软引用一样</p>
+<p>虚引用：形同虚设，任何时候都会被回收，必须和引用队列联合使用，当垃圾回收器准备回收对象时，会在这之前将虚引用加到引用队列中 。用处：判断对象的垃圾回收</p>
+<p><img src="/《深入理解Java虚拟机》读书笔记/引用.png" alt></p>
+<h5 id="finalize方法"><a href="#finalize方法" class="headerlink" title="finalize方法"></a>finalize方法</h5><p>GC在回收对象前调用该方法</p>
+<p>任何对象的finalize方法只会被系统调用一次</p>
+<p>不建议使用</p>
+<h4 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h4><h5 id="标记-清除"><a href="#标记-清除" class="headerlink" title="标记-清除"></a>标记-清除</h5><p>1、标记需要回收的对象 </p>
+<p>2、清除标记的对象</p>
+<p>缺点：效率，空间：会产生大量不连续的内存碎片，如果需要分配较大的对象则没有空间</p>
+<h5 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h5><p>1、将内存空间分为两份，不同比例</p>
+<p>2、将存活的对象移动到另一块内存区域</p>
+<p>3、将已使用的内存区域清理掉</p>
+<p>缺点：内存可使用的区域变小</p>
+<h5 id="标记-整理"><a href="#标记-整理" class="headerlink" title="标记-整理"></a>标记-整理</h5><p>将存活的对象移动到一端，另一端清理屌</p>
+<h5 id="分代收集"><a href="#分代收集" class="headerlink" title="分代收集"></a>分代收集</h5><p>Java堆分为新生代，老年代。不同年代使用不同算法，新生代有大量对象死亡，少量存活，则可以使用复制算法</p>
+<p>老年代对象存活率高，可以使用标记-清理，整理算法</p>
+<h4 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h4><p>对象优先分配到Eden区 新生区，当Eden区没有足够的空间，会触发minor GC，新生代GC(minor GC)</p>
+<p>如果新生代GC没有可回收对象，采用担保机制就将新生代里面的对象移到老年代去，长期存活的对象进入老年代</p>
+<p>-xx:maxTenuringThreshold 熬过一次MinorGc 年龄+1 超过设置的值就移到老年代去  改变这个值的大小，就表示，熬过几次新生代GC就移到老年代去</p>
+<h5 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h5><p>MinorGC前检查老年代最大的连续空间是否大于新生代的所有对象空间，如果大于，则MinroGC安全，如果小于，HandlerPormotionFailare 是否允许担保失败，如果允许，检查历次晋升到老年代的对象是否小于老年代最大的连续空间，如果是，则尝试minorGC，如果不允许担保失败，不冒险。则FullGC</p>
+<h4 id="垃圾收集器-1"><a href="#垃圾收集器-1" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h4><p>不同厂商，不同版本的虚拟机所提供的垃圾收集器有很大区别，不同场景，不同应用有最适合的垃圾收集器</p>
+<h5 id="serial"><a href="#serial" class="headerlink" title="serial"></a>serial</h5><p>新生代收集器，采用标记复制收集算法，单线程，并不是指单线程，而是在一个CPU在执行GC时。必须暂停其它工作线程</p>
+<h5 id="serial-old"><a href="#serial-old" class="headerlink" title="serial old"></a>serial old</h5><p>老年代收集器，采用标记整理收集算法，和serial收集器类似，是单线程</p>
+<h5 id="parNew"><a href="#parNew" class="headerlink" title="parNew"></a>parNew</h5><p>serial收集器的多线程版本，server模式下的新生代收集器，只有CMS收集器能配合工作</p>
+<p>（并行与并发的概念）并行   parallel  </p>
+<p>多条垃圾收集器多线程并行工作，此时用户线程任然处于等待状态</p>
+<p>并发 concurrent</p>
+<p>值用户线程与垃圾收集器线程同时工作（可能不是并行，可能会交替进行）用户线程继续运行，垃圾收集器线程运行在另一个CPU上</p>
+<h5 id="parallel-scavenge-收集器"><a href="#parallel-scavenge-收集器" class="headerlink" title="parallel scavenge 收集器"></a>parallel scavenge 收集器</h5><p>新生代收集器，采用复制算法，并行多线程收集器</p>
+<p>关注点：CMS等收集器，缩短GC时用户线程停顿时间。parallel scavenge控制吞吐量</p>
+<p>两个参数精确控制吞吐量</p>
+<p>-xx:MaxGcpauseMillis 大于0的毫秒数</p>
+<p>保证内存回收的时间控制在设定值,GC停顿时间是牺牲吞吐量和新生代的空间换取</p>
+<p>-xx:GcTimePatio   0-100整数</p>
+<p>垃圾收集所暂用总时间的比例</p>
+<h5 id="parallel-old收集器"><a href="#parallel-old收集器" class="headerlink" title="parallel old收集器"></a>parallel old收集器</h5><p>老年代收集器，采用标记整理算法</p>
+<h5 id="CMS收集器"><a href="#CMS收集器" class="headerlink" title="CMS收集器"></a>CMS收集器</h5><p>CMS (cancurrent Mark sweep)</p>
+<p>获取最短回收停顿时间为目标的收集器，互联网站或B/S系统适用，提升响应速度，系统停顿时间最短</p>
+<p>Mark sweep 标记-清除</p>
+<p>整个过程4个步骤</p>
+<p>初始标记 CMS initial mark    需要STW （stop the world）</p>
+<p>并发标记 CMS concurrent mark</p>
+<p>重新标记 CMS rement   需要STW （stop the world）</p>
+<p>并发清除 CMS concurrent sweep</p>
+<p>初始标记，重新标记人需要stop the world</p>
+<p>初始标记只需要标记GC Root能关联的对象，并发标记就是GC Root跟踪的一个过程</p>
+<p>重新标记则是记录在并发标记期间，用户继续运作产生变动的一部分对象，停顿时间比初始标记长，远比并发标记段</p>
+<p>整个过程耗时最长的并发标记和并发清除是可以和用户线程一起工作</p>
+<p>CMS收集器内存回收可以与用户线程一起工作</p>
+<p>CMS收集器特点：并发收集，低停顿</p>
+<p>缺点：1、对CPU资源敏感</p>
+<p>并发回收时，占用CPU资源的25%以上，随着CPU数量的增加而下降，当CPU是2个回收时，占用资源达到50%</p>
+<p>2、无法处理浮动垃圾</p>
+<p>并发清理阶段，用户线程还会产生新的垃圾（浮动垃圾）</p>
+<p>3、CMS基于标记-清除算法实现，会产生大量的空间碎片</p>
+<p>分配大对象会触发FullGC</p>
+<p>+usecmscompactAtFullCollection 默认开启</p>
+<p>在要FullGC时会整理内存空间，空间碎片没了，停顿时间会变长</p>
+<h5 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h5><p>特点：并行 并发 分代收集 空间整理</p>
+<p>G1从整体上看是基于标记整理算法。G1将Java堆分为若干Region ,标记整理Region</p>
+<p>从局部来看是基于复制算法（两个Region）</p>
+<p>可预测的停顿</p>
+<p>G1收集器之前，收集范围都是整个新生代和老年代，G1在堆得布局与其他有很大区别</p>
+<p>将Java堆分为多个大小相等的独立区域 Region，根据各个region的可回收的垃圾价值决定所有可预测停顿的时长，G1收集器化整为零 将Java堆分为多个大小相同的region</p>
+<p>G1收集器运行步骤：<br>初始标记，并发标记，最终标记，筛选回收  类似CMS回收步骤，筛选回收则是根据Region的可回收价值来针对回收</p>
+<h3 id="虚拟机执行子系统"><a href="#虚拟机执行子系统" class="headerlink" title="虚拟机执行子系统"></a>虚拟机执行子系统</h3><h4 id="虚拟机类加载机制"><a href="#虚拟机类加载机制" class="headerlink" title="虚拟机类加载机制"></a>虚拟机类加载机制</h4><h5 id="类加载时机"><a href="#类加载时机" class="headerlink" title="类加载时机"></a>类加载时机</h5><p>生命周期</p>
+<p>加载-&gt;验证-&gt;准备-&gt;解析-&gt;初始化-&gt;使用-&gt;卸载</p>
+<p>加载、验证、准备、初始化、卸载这5个阶段顺序是确定，解析为支持Java动态绑定而不规定什么时候进行</p>
+<p>只有5中情况必须对类立即进行初始化，包括初始化之前的加载，验证，准备阶段</p>
+<p>1、new 读取或设置一个静态字段，以及调用静态方法</p>
+<p>2、对类进行反射时</p>
+<p>3、初始化一个类时发现父类还没有初始化，则先需要初始化父类</p>
+<p>4、虚拟机启动时的主类，包含main的类</p>
+<p>5、方法句柄所对应的类没有进行初始化，则需要先触发其初始化</p>
+<p>有且只有上述5种方法称之为主动引用</p>
+<p>3种被动引用</p>
+<p>1、通过子类引用父类的静态字段，不会导致子类初始化 P211代码</p>
+<p>2、通过数组定义来引用类，不会触发初始化 P212代码</p>
+<p>3、常量在编译阶段会存入调用类的常量池中，本质并没有直接引用定义的常量的类，不会触发定义常量的类的初始化 P213代码</p>
+<p>接口与类不同，接口并不要求其父接口全部完成初始化，只有在使用到父接口中定义的常量是才会初始化</p>
+<h5 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h5><h6 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h6><p>1、通过类的全限定名来获取此类的二进制流</p>
+<p>2、将字节流所代表的的静态存储结构转换为方法区的运行时数据结构</p>
+<p>3、在内存中生成一个代表这个类的Class对象，作为方法区这个类的各种数据的访问入口</p>
+<p>获取Class文件来源</p>
+<ol>
+<li>ZIP包中获取 最常见</li>
+<li>网络中获取</li>
+<li>运行时计算生成 动态代理</li>
+<li>有其他文件生成 有jsp文件生成的class类</li>
+<li>有数据库读取</li>
+</ol>
+<p>可重写loadclass()方法自定义不同的类加载器</p>
+<h6 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h6><p>确保Class文件的字节流中包含信息符合当前虚拟机要求，不会危害虚拟机自身安全</p>
+<p>4个检验动作</p>
+<p>文件格式验证，元数据验证，字节码验证，符号引用验证</p>
+<p>1、文件格式验证</p>
+<p>验证字节流是否符合Class文件格式规范，并且能被当前版本的虚拟机处理</p>
+<p>验证点：是否以魔数开头，主次版本号是否在当前虚拟机的处理范围，常量池中的常量是否有不被支持的常量类型，是否有指向不存在的常量，或不符合类型的常量，Class文件中各部分以及文件本身是否有被删除或附加其他信息</p>
+<p>2、元数据验证</p>
+<p>是对字节码描述的信息进行语义分析确保指定的信息符合Java语言规范</p>
+<p>验证点包括：</p>
+<ol>
+<li>是否有父类（除了Object外，所有类都有父类）</li>
+<li>这个类是否集成了不允许被继承的类（被final修饰）</li>
+<li>如果不是抽象类，是否实现了父类或接口中要求实现的所有方法</li>
+<li>类中的字段方法是否与父类产生矛盾，比如覆盖了父类的final字段</li>
+</ol>
+<p>3、字节码验证</p>
+<p>最重要的验证环节，通过数据流和控制流分析，确保语义合法，符合逻辑，针对方法体进行校验分析，保证方法运行时不会做出危害虚拟机的安全事件</p>
+<p>4、符号验证</p>
+<p>符号引用验证看做是对类自身以外的信息进行匹配校验</p>
+<h6 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h6><p>准备阶段是正式为类变量分配内存并设置类变量初始值阶段，此时分配内存仅分配被static修饰的变量，设置默认值只是设置value的零值</p>
+<h6 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h6><p>符号引用：以一组符号来描述所引用的目标，符号可以是任何形式的字面量</p>
+<p>直接引用：可以直接指向目标的指针，相对偏移量，或是一个能间接定位到目标的句柄</p>
+<p>解析阶段就是虚拟机将常量池内的符号引用转换为直接引用的过程，解析动作主要针对类和接口，字段，类方法，接口方法，方法类型，方法句柄</p>
+<h6 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h6><p>类加载过程中最后一步，初始化阶段为类的静态变量赋予正确的初始值</p>
+<h4 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h4><h5 id="类和类加载器"><a href="#类和类加载器" class="headerlink" title="类和类加载器"></a>类和类加载器</h5><p>任意一个类需要由他的类加载器和类的本身确定在虚拟机中的唯一性，比较两个类是否相等，只有在两个类都是由同一个类加载器的前提下比较才有意义</p>
+<h5 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h5><p><img src="/《深入理解Java虚拟机》读书笔记/双亲委派模型.png" alt></p>
+<p>双亲委派模型要求：</p>
+<p>除了顶层的启动类加载器外，其余的类加载器都必须有自己的父类加载器</p>
+<p>双亲委派模型工作过程：</p>
+<p>如果一个类加载器收到了类加载器的请求，他首先不会自己去尝试加载这个类，而是把请求委派给父类去加载，每个层次的类加载器都是如此，因此所有的加载请求，最终都应该传送到顶层的启动类加载器中，只有当父类加载器反馈自己无法完成这个加载请求（搜索范围内没有所需的类）时，自家在其才会尝试自己加载</p>
+<p>双亲委派模型好处：<br>带有优先级的层次关系，保证子类加载器不会和父类加载器加载到重复的类，从而保证类的唯一性</p>
+<p>双亲委派模型的实现：</p>
+<p>P232代码</p>
+<h2 id="Java内存模型"><a href="#Java内存模型" class="headerlink" title="Java内存模型"></a>Java内存模型</h2><h4 id="主内存和工作内存"><a href="#主内存和工作内存" class="headerlink" title="主内存和工作内存"></a>主内存和工作内存</h4><p>Java内存模型规定所有的变量都存在主内存上，每条线程还会有自己的工作内存，工作内存保存了被该线程使用到的变量的主内存拷贝，线程的所有操作都在工作内存完成，不能直接读写主内存中的变量，不同线程无法直接访问对方的工作内存</p>
+<p><img src="/《深入理解Java虚拟机》读书笔记/内存模型.png" alt></p>
+<h4 id="内存间相互调用"><a href="#内存间相互调用" class="headerlink" title="内存间相互调用"></a>内存间相互调用</h4><p>主内存和工作内存的相互操作</p>
+<p>lock 锁定：作用于主内存，把一个变量标识为线程独占</p>
+<p>unlock 解锁：作用于主内存，把一个锁定的变量解锁</p>
+<p>read 读取：作用于主内存，把主内存的值传输到工作内存，以便随后的load操作</p>
+<p>load 载入：作用于工作内存，把read操作从主内存得到的变量放入工作内存的副本</p>
+<p>use 使用：作用于工作内存，将工作内存中的一个变量传递给执行引擎，虚拟机需要使用变量时会执行这个操作</p>
+<p>assign 赋值：作用于工作内存，将执行引擎街道的值赋值给工作内存</p>
+<p>store 存储：作用于工作内存的变量，把工作内存的变量值传递到主内存，以便随后的write操作</p>
+<p>write 写入：作用于主内存，把store操作从工作内存得到的变量值放入主内存</p>
+<p>Java内存模型规定了执行上述8种基本操作时，必须满足一下规则来保证内存操作在并发条件下时安全的</p>
+<ol>
+<li><p>不允许read和load，store和write操作之一单独出现，即变量存主内存读取了但工作内存不接受，或从工作内存发起了回写，但主内存不接受</p>
+</li>
+<li><p>不允许一个线程丢弃他最近的assign操作，即变量在工作内存中改变了，必须把该变化同步回主内存</p>
+</li>
+<li><p>不允许一个线程无原因的（没有assign操作）把数据从工作内存同步到主内存</p>
+</li>
+<li><p>新的变量只能在主内存中”诞生“，不允许在工作内存中直接使用一个未被初始化，load,assign的变量，对变量实施use，store操作前必须执行了assign赋值和load载入操作</p>
+</li>
+<li><p>一个变量在同一时刻只允许一条线程对其进行load操作，但lock操作可以被同一条线程重复执行多次，多次lock之后，只有执行相同次数的unlock操作，变量才会被解锁</p>
+</li>
+<li><p>对变量执行lock操作会清空工作内存中此变量的值，在使用时需要重新执行load或assign初始化变量的值</p>
+</li>
+<li><p>如果变量没有被lock操作锁定，不允许unlock操作，也不允许unlock一个被其他线程锁定的变量</p>
+</li>
+<li><p>对变量unlock操作之前，必须把变量同步回主内存中执行store,write操作</p>
+</li>
+</ol>
+<h4 id="volatile型变量的特殊规则"><a href="#volatile型变量的特殊规则" class="headerlink" title="volatile型变量的特殊规则"></a>volatile型变量的特殊规则</h4><p>变量定义为volatile之后有两种特性</p>
+<p>1、保证此变量堆所有线程的可见性</p>
+<p>​    可见性是指当一个线程修改了变量的值，新值对于其他线程时立即可知的，但不能保证变量的原子性，因为Java里面的运算并非原子操作。</p>
+<p>​    在必要时还是需要通过加锁来保证原子性：1、运算结果不依赖变量当前的值或者确保只有单一线程修改变量的值。2、变量不需要与其他变量共同参与不变约束</p>
+<p>2、禁止指令重排</p>
+<p>普通变量仅会保证结果正确，不能保证赋值操作的顺序与程序代码中的执行顺序一致，简单的理解为禁止虚拟机优化字节码的顺序排列而导致结果异常</p>
+<h4 id="Java内存模型对Volatile变量定义的特殊规则"><a href="#Java内存模型对Volatile变量定义的特殊规则" class="headerlink" title="Java内存模型对Volatile变量定义的特殊规则"></a>Java内存模型对Volatile变量定义的特殊规则</h4><p>T线程  V,W为volatile变量</p>
+<p>1、只有T执行的前一个动作是load载入时，线程T才能对变量执行use使用操作，并且T对V执行的后一个动作是use使用时，T才能对v执行load操作。</p>
+<p>T对V的use动作可以认为T对V的load，read动作相关联，必须连续一起出现，这条规则要求在工作内存中，每次使用V时都必须从主内存刷新最新的值，保证能看见其他线程对变量V的操作</p>
+<p>2、T对变量V的前一个动作是assign赋值时，T才能对变量V执行store存储动作，并且T对V执行的后一个动作是store时，T才能对V执行assign，T对V的assign操作可以认为T对V的store，write相关联，必须连续出现，保证其他线程可以看到自己对V的修改</p>
+<p>3、保证代码的执行顺序与程序时相同的</p>
+<h4 id="long-double特殊规则"><a href="#long-double特殊规则" class="headerlink" title="long double特殊规则"></a>long double特殊规则</h4><p>64位数据类型，long double</p>
+<p>允许虚拟机将没有被volatile修饰的变量的64位数据读写操作划分为两次32位操作，即虚拟机可以选择不保证64位数据类型的load，store，read，write4个操作的原子性，即long，double的非原子性协议，由于商用虚拟机都选择把64位数据读写操作作为原子操作，因此不需要把long，double变量专门声明位volatile</p>
+<h4 id="原子性，可见性，有序性"><a href="#原子性，可见性，有序性" class="headerlink" title="原子性，可见性，有序性"></a>原子性，可见性，有序性</h4><h5 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h5><p>read,load,assign,use,store,write</p>
+<p>基本数据类型的访问读写是具备原子性，lock unlock也是，但并未开放给用户使用，但提供了更高层次的字节码指令 monitorenter和monitorexit，反映到Java代码就是synchroized</p>
+<h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><p>指当一个线程修改了共享变量的值，其他线程能立即知道修改，无论是普通变量还是volatile变量都是变量修改后将新值同步回主内存，读取变量前从主内存刷新变量值，普通变量和volatile的区别是volatile的特殊规则保证了新值能立即同步回主内存，出volatile之外，Java还有两个关键字实现了可见性 synchroized和final，synchroized是由对一个变量的unlock操作之前必须把此变量同步回主内存执行store，write操作，final可见性，不能更改</p>
+<h5 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h5><p>Java程序中天然的有序性可以总结为一句话：如果本线程内观察多有操作都是有序的，如果在一个线程中观察另一个线程所有操作都是无序的。前一句：线程内表现为串行的语义，后一句：指令重排序，工作内存和主内存同步延迟，volatile本身就包含禁止指令重排序，synchreized是一个时刻只允许一个县城对其进行load操作</p>
+<h4 id="先行发生原则-happens-before"><a href="#先行发生原则-happens-before" class="headerlink" title="先行发生原则 happens-before"></a>先行发生原则 happens-before</h4><p>他是判断数据是否存在竞争，县城是否安全的主要依据</p>
+<p>天然的先行发生原则：</p>
+<p>1、程序次序规则：在一个线程内按照程序代码顺序，书写在前面的操作先行发生于书写在后面的操作，准确的说是控制流顺序，而不是程序代码的顺序，因为要考虑到分支循环操作</p>
+<p>2、管道锁定规则：在一个unlock操作先行发生于后面对同一个锁的lock操作</p>
+<p>3、volatile变量规则：对一个volatile变量的写操作先行发生于后面的这个变量的读操作</p>
+<p>4、线程启动规则：Threa对象的stat方法先行发生于此线程的每一个动作</p>
+<p>5、线程终止规则：线程中的所有操作都先行发生于此线程的终止检测，通过Thread.join方法结束</p>
+<p>6、线程终端规则：对线程的interrupt方法调用先行发生与中断线程的代码检测到的中断事件的发生 ，通过Thead.inrerrupt方法检测到是否有中断发生</p>
+<p>7、对象终结规则：一个对象的初始化完成（构造函数）执行结束先行发生于他的finalize方法的开始</p>
+<p>8、传递性：如果动作A先行发生与动作B，动作B先行发生于动作C，可以得出动作A先行发生于动作C</p>
+<p>上述可以得出一个结论，时间先后顺序与先行发生原则之间基本没有太大的关系，所以衡量并发安全问题的时候不要受到时间顺序的干扰，一切必须以先行发生原则为准</p>
+<h2 id="Java线程状态转换"><a href="#Java线程状态转换" class="headerlink" title="Java线程状态转换"></a>Java线程状态转换</h2><p>Java定义了5种线程状态在任意时间点，一个线程只能有且只有一种状态</p>
+<p>新建 new ：创建尚未启动的线程处于这种状态</p>
+<p>运行 Runable 处于此线程有可能正在执行，也有可能正在等待CPU为他分配执行时间</p>
+<p>无限期等待：waiting处于这种状态的线程不会被分配CPU，执行时间要等待其他线程的显示唤醒，以下方法会让线程陷入无限期等待状态：没有设置Timeout参数的Object.wait，没有设置Timeout参数的Thread.join，LockSupport.park方法</p>
+<p>限期等待 （Time，waiting）：不会被分配CPU执行时间，无需等待被其他线程显示的唤醒，在一定时间之后由系统自动唤醒，在一定时间之后由系统自动唤醒，以下方法会让线程进入限期等待状态：Thread.sleep，设置了Timeout参数的Object.wait，设置了Timeout参数的Thread.join，Locksupport.parkNans方法，LockSupport.parkuntil方法</p>
+<p>阻塞 Blocked:阻塞状态与等待状态的区别是：阻塞状态在等待获取到一个排它锁，这个事件将在另外一个线程放弃这个锁的时候发生，等待状态则是在等待一段时间或者唤醒动作发生时，在线程等待进入同步区域时线程将进入这种状态</p>
+<p>结束 Terminated:已终止线程的线程状态，线程以结束运行</p>
+<p><img src="/《深入理解Java虚拟机》读书笔记/线程状态.png" alt></p>
+<p>线程安全程序由强至弱来排序分为5类</p>
+<p>1、不可变：被final修饰的变量，因为其不可变，所以永远不会看到多个线程之中处于不一致的状态，不可变带来的线程安全性是最简单最纯粹的</p>
+<p>2、绝对线程安全：被sync修饰的，尽管效率低，但确实是安全的</p>
+<p>3、相对线程安全：相对安全就是我们通常意义上所讲的线程安全，大部分线程安全都属于这种类型，Vector,HashTable</p>
+<p>4、线程兼容：线程兼容是指对象本身并不是线程安全，但是可以通过调用端正确的使用同步手段来保证对象在并发环境中的安全，hashMap,ArrayList</p>
+<p>5、线程对立：线程对立是指无论调用端是否采取了同步措施，都无法在多线程中并发使用的代码，应避免出现这种情况</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>​     整理了关于这本书的读书笔记，挺不错的，都是理论知识，花了一个多月时间，对JVM大致有了一个了解，虽然工作中涉及到的不多，但在以后的面试中，或者以后工作中，对于Java的深入会有一定帮助，多读书总是没错的。</p>
+<p>​     最近工（划）作（水）中随便学习了一些零乱的东西，比如myabtis的二级缓存，Redis的pipline管道等，总之很杂乱，但是看过就忘了，所以以后要将零碎的东西也整理一下，至少看过了，做个笔记，时间久了，会看到这一路走来，接触的东西有一个总结</p>
+<p>​     至于工作嘛！！！老样子，开会，研发，测试，没什么惊喜，但是有个感触，在和大数据对接的过程中，大数据研发工程师是武大研究生，好生羡慕，在对话的过程中，发现差距还是很大的，他说的redis的pipline，在之前没听说过,所以我才去研究，以及一些在我看来的高端术语，听得我一脸懵逼。哎，加油吧！</p>
+<p>​     面朝大海，春暖花开！</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+<div>
+      
+        
+      
+</div>
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Congz</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://Zhucong123.github.io/《深入理解Java虚拟机》读书笔记.html" title="深入理解Java虚拟机 读书笔记">https://Zhucong123.github.io/《深入理解Java虚拟机》读书笔记.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-heart"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/读书笔记，JAVA/" rel="tag"><i class="fa fa-tag"></i> 读书笔记，JAVA</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/ReentrantLock源码浅谈.html" rel="next" title="ReentrantLock源码浅谈">
+                <i class="fa fa-chevron-left"></i> ReentrantLock源码浅谈
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/为什么For循环操作List会报错.html" rel="prev" title="为什么For循环操作List会报错">
+                为什么For循环操作List会报错 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Congz">
+            
+              <p class="site-author-name" itemprop="name">Congz</p>
+              <div class="site-description motion-element" itemprop="description">平平淡淡，任其自然</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#深入理解JAVA虚拟机"><span class="nav-number">2.</span> <span class="nav-text">深入理解JAVA虚拟机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#自动内存管理"><span class="nav-number">2.1.</span> <span class="nav-text">自动内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#运行时数据区域"><span class="nav-number">2.1.1.</span> <span class="nav-text">运行时数据区域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#垃圾收集器"><span class="nav-number">2.1.2.</span> <span class="nav-text">垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#确定方法"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">确定方法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#引用计数法"><span class="nav-number">2.1.2.1.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可达性分析算法"><span class="nav-number">2.1.2.1.2.</span> <span class="nav-text">可达性分析算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#引用"><span class="nav-number">2.1.2.1.3.</span> <span class="nav-text">引用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#finalize方法"><span class="nav-number">2.1.2.1.4.</span> <span class="nav-text">finalize方法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#垃圾收集算法"><span class="nav-number">2.1.2.2.</span> <span class="nav-text">垃圾收集算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#标记-清除"><span class="nav-number">2.1.2.2.1.</span> <span class="nav-text">标记-清除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#复制"><span class="nav-number">2.1.2.2.2.</span> <span class="nav-text">复制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#标记-整理"><span class="nav-number">2.1.2.2.3.</span> <span class="nav-text">标记-整理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分代收集"><span class="nav-number">2.1.2.2.4.</span> <span class="nav-text">分代收集</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内存分配与回收策略"><span class="nav-number">2.1.2.3.</span> <span class="nav-text">内存分配与回收策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#空间分配担保"><span class="nav-number">2.1.2.3.1.</span> <span class="nav-text">空间分配担保</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#垃圾收集器-1"><span class="nav-number">2.1.2.4.</span> <span class="nav-text">垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#serial"><span class="nav-number">2.1.2.4.1.</span> <span class="nav-text">serial</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#serial-old"><span class="nav-number">2.1.2.4.2.</span> <span class="nav-text">serial old</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#parNew"><span class="nav-number">2.1.2.4.3.</span> <span class="nav-text">parNew</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#parallel-scavenge-收集器"><span class="nav-number">2.1.2.4.4.</span> <span class="nav-text">parallel scavenge 收集器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#parallel-old收集器"><span class="nav-number">2.1.2.4.5.</span> <span class="nav-text">parallel old收集器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CMS收集器"><span class="nav-number">2.1.2.4.6.</span> <span class="nav-text">CMS收集器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#G1收集器"><span class="nav-number">2.1.2.4.7.</span> <span class="nav-text">G1收集器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟机执行子系统"><span class="nav-number">2.1.3.</span> <span class="nav-text">虚拟机执行子系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#虚拟机类加载机制"><span class="nav-number">2.1.3.1.</span> <span class="nav-text">虚拟机类加载机制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#类加载时机"><span class="nav-number">2.1.3.1.1.</span> <span class="nav-text">类加载时机</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#类加载过程"><span class="nav-number">2.1.3.1.2.</span> <span class="nav-text">类加载过程</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#加载"><span class="nav-number">2.1.3.1.2.1.</span> <span class="nav-text">加载</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#验证"><span class="nav-number">2.1.3.1.2.2.</span> <span class="nav-text">验证</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#准备"><span class="nav-number">2.1.3.1.2.3.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#解析"><span class="nav-number">2.1.3.1.2.4.</span> <span class="nav-text">解析</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#初始化"><span class="nav-number">2.1.3.1.2.5.</span> <span class="nav-text">初始化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类加载器"><span class="nav-number">2.1.3.2.</span> <span class="nav-text">类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#类和类加载器"><span class="nav-number">2.1.3.2.1.</span> <span class="nav-text">类和类加载器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#双亲委派模型"><span class="nav-number">2.1.3.2.2.</span> <span class="nav-text">双亲委派模型</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java内存模型"><span class="nav-number">2.2.</span> <span class="nav-text">Java内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主内存和工作内存"><span class="nav-number">2.2.0.1.</span> <span class="nav-text">主内存和工作内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内存间相互调用"><span class="nav-number">2.2.0.2.</span> <span class="nav-text">内存间相互调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#volatile型变量的特殊规则"><span class="nav-number">2.2.0.3.</span> <span class="nav-text">volatile型变量的特殊规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java内存模型对Volatile变量定义的特殊规则"><span class="nav-number">2.2.0.4.</span> <span class="nav-text">Java内存模型对Volatile变量定义的特殊规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#long-double特殊规则"><span class="nav-number">2.2.0.5.</span> <span class="nav-text">long double特殊规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原子性，可见性，有序性"><span class="nav-number">2.2.0.6.</span> <span class="nav-text">原子性，可见性，有序性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原子性"><span class="nav-number">2.2.0.6.1.</span> <span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可见性"><span class="nav-number">2.2.0.6.2.</span> <span class="nav-text">可见性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#有序性"><span class="nav-number">2.2.0.6.3.</span> <span class="nav-text">有序性</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#先行发生原则-happens-before"><span class="nav-number">2.2.0.7.</span> <span class="nav-text">先行发生原则 happens-before</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java线程状态转换"><span class="nav-number">2.3.</span> <span class="nav-text">Java线程状态转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+<div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Congz</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">131k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">2:01</span>
+  
+</div>
+
+
+
+
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共41.5k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: true,
+    appId: 'w6UDP96bFu04gBNb0hpt2NJ0-gzGzoHsz',
+    appKey: '7uvUMhEgLi9FodiNW1ch1cE6',
+    placeholder: 'ヾﾉ≧∀≦)o 来呀！吐槽一番吧！',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

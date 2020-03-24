@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #1E92FB; /*进度条颜色*/
+        height: 3px;
+    }
+    .pace .pace-progress-inner {
+         box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前文闲来无事，随便看看，看到了两个同步组件，正想前段时间看了ReentrantLock之后了解了一下AQS就没怎么看关于并发这块的源码了，今天下午没事，来看看，做个记录 开始感觉自己看源码越来越快了，因为知道源码里面一些常用的套路，知道他是做什么的，只用看看大致的流程，就能明白他要做什么，挺厉害的，加油哦。 正文CountDownLatch是JUC包里面类似于计数器的组件，一般用来等待其他线程执行">
+<meta name="keywords" content="并发，JAVA，源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程同步组件CountDownLatch与CyclicBarrier">
+<meta property="og:url" content="https://Zhucong123.github.io/线程同步组件CountDownLatch与CyclicBarrier.html">
+<meta property="og:site_name" content="Congz | Blog">
+<meta property="og:description" content="前文闲来无事，随便看看，看到了两个同步组件，正想前段时间看了ReentrantLock之后了解了一下AQS就没怎么看关于并发这块的源码了，今天下午没事，来看看，做个记录 开始感觉自己看源码越来越快了，因为知道源码里面一些常用的套路，知道他是做什么的，只用看看大致的流程，就能明白他要做什么，挺厉害的，加油哦。 正文CountDownLatch是JUC包里面类似于计数器的组件，一般用来等待其他线程执行">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-08T09:15:19.220Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="线程同步组件CountDownLatch与CyclicBarrier">
+<meta name="twitter:description" content="前文闲来无事，随便看看，看到了两个同步组件，正想前段时间看了ReentrantLock之后了解了一下AQS就没怎么看关于并发这块的源码了，今天下午没事，来看看，做个记录 开始感觉自己看源码越来越快了，因为知道源码里面一些常用的套路，知道他是做什么的，只用看看大致的流程，就能明白他要做什么，挺厉害的，加油哦。 正文CountDownLatch是JUC包里面类似于计数器的组件，一般用来等待其他线程执行">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Congz | Blog" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://Zhucong123.github.io/线程同步组件CountDownLatch与CyclicBarrier">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>线程同步组件CountDownLatch与CyclicBarrier | Congz | Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?9462705702727bdff9e7bd016db7169c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Congz | Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静坐常思己过，闲谈莫论人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://Zhucong123.github.io/线程同步组件CountDownLatch与CyclicBarrier.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Congz">
+      <meta itemprop="description" content="平平淡淡，任其自然">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Congz | Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">线程同步组件CountDownLatch与CyclicBarrier
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-07 16:38:36" itemprop="dateCreated datePublished" datetime="2019-11-07T16:38:36+08:00">2019-11-07</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-11-08 17:15:19" itemprop="dateModified" datetime="2019-11-08T17:15:19+08:00">2019-11-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/并发/" itemprop="url" rel="index"><span itemprop="name">并发</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/线程同步组件CountDownLatch与CyclicBarrier.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/线程同步组件CountDownLatch与CyclicBarrier.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">12k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">11 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前文"><a href="#前文" class="headerlink" title="前文"></a>前文</h4><p>闲来无事，随便看看，看到了两个同步组件，正想前段时间看了ReentrantLock之后了解了一下AQS就没怎么看关于并发这块的源码了，今天下午没事，来看看，做个记录</p>
+<h4 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h4><p>感觉自己看源码越来越快了，因为知道源码里面一些常用的套路，知道他是做什么的，只用看看大致的流程，就能明白他要做什么，挺厉害的，加油哦。</p>
+<h4 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h4><p>CountDownLatch是JUC包里面类似于计数器的组件，一般用来等待其他线程执行完毕之后，在去执行其他操作，或者执行主线程</p>
+<h4 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h4><h5 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args)throws InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    CountDownLatch countDownLatch = new CountDownLatch(6);</span><br><span class="line">    ExecutorService executorService = Executors.newFixedThreadPool(6);</span><br><span class="line">    for (int i = 0; i &lt; 6; i++) &#123;</span><br><span class="line">        executorService.execute(() -&gt; &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + &quot; 开始等待！！！&quot;);</span><br><span class="line">            countDownLatch.countDown();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    countDownLatch.await();</span><br><span class="line">    System.out.println(&quot;起飞咯！！！&quot;);</span><br><span class="line">    executorService.shutdown();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pool-1-thread-1 开始等待！！！</span><br><span class="line">pool-1-thread-3 开始等待！！！</span><br><span class="line">pool-1-thread-2 开始等待！！！</span><br><span class="line">pool-1-thread-4 开始等待！！！</span><br><span class="line">pool-1-thread-5 开始等待！！！</span><br><span class="line">pool-1-thread-6 开始等待！！！</span><br><span class="line">起飞咯！！！</span><br></pre></td></tr></table></figure>
+<p>这个例子是很正常的例子，保证线程数和CountDownLatch的数是一致，他会等待等同于计数器数量的线程准备好之后，在去执行其他线程，这里的其他线程是主线程，这个效果不明显，我现在将CountDownLatch初始化的参数改为7</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CountDownLatch countDownLatch = new CountDownLatch(7);</span><br></pre></td></tr></table></figure>
+<p>这表示会等待7个线程然后在执行主线程，但是在for循环里面我们只初始化了6条线程，所以主线程会一直等待，因为我们没有设置超时时间并且线程数没有达到计数器里面的7个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pool-1-thread-1 开始等待！！！</span><br><span class="line">pool-1-thread-2 开始等待！！！</span><br><span class="line">pool-1-thread-3 开始等待！！！</span><br><span class="line">pool-1-thread-4 开始等待！！！</span><br><span class="line">pool-1-thread-5 开始等待！！！</span><br><span class="line">pool-1-thread-6 开始等待！！！</span><br></pre></td></tr></table></figure>
+<p>在举一个例子，我们将7改成1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CountDownLatch countDownLatch = new CountDownLatch(1);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pool-1-thread-2 开始等待！！！</span><br><span class="line">pool-1-thread-1 开始等待！！！</span><br><span class="line">起飞咯！！！</span><br><span class="line">pool-1-thread-3 开始等待！！！</span><br><span class="line">pool-1-thread-4 开始等待！！！</span><br><span class="line">pool-1-thread-6 开始等待！！！</span><br><span class="line">pool-1-thread-5 开始等待！！！</span><br></pre></td></tr></table></figure>
+<p>此时计数器只用执行一遍countDown()就会唤醒其他所有线程包括主线程，所以例子里面的起飞咯在线程还没有等待完毕就已经执行完了</p>
+<h5 id="CyclicBarrier"><a href="#CyclicBarrier" class="headerlink" title="CyclicBarrier"></a>CyclicBarrier</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">private CyclicBarrier cyclicBarrier;</span><br><span class="line">public CyclicBarrierDemo(CyclicBarrier cyclicBarrier)&#123;</span><br><span class="line">    this.cyclicBarrier=cyclicBarrier;</span><br><span class="line">&#125;</span><br><span class="line">@Override</span><br><span class="line">public void run() &#123;</span><br><span class="line">    System.out.println(&quot;线程&quot;+Thread.currentThread().getName()+&quot;准备！&quot;);</span><br><span class="line">    try &#123;</span><br><span class="line">        cyclicBarrier.await();</span><br><span class="line">        System.out.println(&quot;线程&quot;+Thread.currentThread().getName()+&quot;结束！&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; catch (BrokenBarrierException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">    CyclicBarrier cyclicBarrier=new CyclicBarrier(11);</span><br><span class="line">    Executor executor=Executors.newFixedThreadPool(10);</span><br><span class="line">    for(int i=0;i&lt;10;i++)&#123;</span><br><span class="line">        executor.execute(new CyclicBarrierDemo(cyclicBarrier));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个结果和CountDownLatch差不多，也是等待一个时机，然后一起执行后续操作，但是还有一些细微差别，在后面在来分析</p>
+<h4 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h4><h5 id="CountDownLatch-1"><a href="#CountDownLatch-1" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h5><p>源码挺简单的，前面分析过ReentrantLock和部分AQS的源码，在来看这个就很容易</p>
+<p>这个源码我主要说三个方法，也是两个比较核心的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public void countDown() //计数器-1</span><br><span class="line">public void await() //线程等待</span><br></pre></td></tr></table></figure>
+<p>这个唯一的构造函数必须执行一个参数，就是计数器的数值，里面也是使用的Sync同步组件</p>
+<p>在构造函数里面new了Sync类，将计数器的值传入，然后设置state的值为count,看到这里应该就明白一大半了，之前ReentrantLock里面的可重入锁也是这样，如果相同线程进入了同一个锁，会将state的值不断的+1 然后解锁就是不断的-1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Constructs a &#123;@code CountDownLatch&#125; initialized with the given count.</span><br><span class="line"> *</span><br><span class="line"> * @param count the number of times &#123;@link #countDown&#125; must be invoked</span><br><span class="line"> *        before threads can pass through &#123;@link #await&#125;</span><br><span class="line"> * @throws IllegalArgumentException if &#123;@code count&#125; is negative</span><br><span class="line"> */</span><br><span class="line">public CountDownLatch(int count) &#123;</span><br><span class="line">    if (count &lt; 0) throw new IllegalArgumentException(&quot;count &lt; 0&quot;);</span><br><span class="line">    //new Sync</span><br><span class="line">    this.sync = new Sync(count);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Sync(int count) &#123;</span><br><span class="line">   setState(count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="countDown"><a href="#countDown" class="headerlink" title="countDown()"></a>countDown()</h6><p>先来看看countDown方法，这个方法是将计数器的值-1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public void countDown() &#123;</span><br><span class="line">    sync.releaseShared(1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//尝试将计数器的值+1 如果达到了初始化设置的count值，就激活所有线程</span><br><span class="line">public final boolean releaseShared(int arg) &#123;</span><br><span class="line">    if (tryReleaseShared(arg)) &#123;</span><br><span class="line">    	//如果tryReleaseShared返回true,表示达到了count的值，就会激活所有线程</span><br><span class="line">    	//上述例子中将count的值设置小于线程数，所以激活所有线程包括主线程，主线程就执行了</span><br><span class="line">        doReleaseShared();</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="await"><a href="#await" class="headerlink" title="await()"></a>await()</h6><p>这个方法是将当前线程等待，如果计数器未达到设定值，将一直等待，上述例子也有，当计数器设置为7时，只new  6条线程，所以主线程会一直等待</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line">  public void await() throws InterruptedException &#123;</span><br><span class="line">      sync.acquireSharedInterruptibly(1);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">   public final void acquireSharedInterruptibly(int arg)</span><br><span class="line">          throws InterruptedException &#123;</span><br><span class="line">      //判断线程是否中断</span><br><span class="line">      if (Thread.interrupted())</span><br><span class="line">          throw new InterruptedException();</span><br><span class="line">      //判断计数器也就是当前锁的状态，如果state不为0,则需要将线程挂起</span><br><span class="line">      if (tryAcquireShared(arg) &lt; 0)</span><br><span class="line">      	//挂起线程</span><br><span class="line">          doAcquireSharedInterruptibly(arg);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  //判断计数器的值</span><br><span class="line">  protected int tryAcquireShared(int acquires) &#123;</span><br><span class="line">          return (getState() == 0) ? 1 : -1;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  private void doAcquireSharedInterruptibly(int arg)</span><br><span class="line">      throws InterruptedException &#123;</span><br><span class="line">      //先往AQS里面添加一个节点，这个addWaiter在ReentrantLock里面有分析</span><br><span class="line">      //会往AQS的尾部添加一个节点</span><br><span class="line">      final Node node = addWaiter(Node.SHARED);</span><br><span class="line">      boolean failed = true;</span><br><span class="line">      try &#123;</span><br><span class="line">          for (;;) &#123;//自旋</span><br><span class="line">          	//得到前节点</span><br><span class="line">              final Node p = node.predecessor();</span><br><span class="line">              //如果前节点是头节点，则开始尝试激活</span><br><span class="line">              if (p == head) &#123;</span><br><span class="line">              	//尝试获取当前状态，如果为0返回1 如果不为0 返回 -1</span><br><span class="line">                  int r = tryAcquireShared(arg);</span><br><span class="line">                  if (r &gt;= 0) &#123;//表示当前状态为0，可以激活线程</span><br><span class="line">                  	//</span><br><span class="line">                      setHeadAndPropagate(node, r);</span><br><span class="line">                      p.next = null; // help GC</span><br><span class="line">                      failed = false;</span><br><span class="line">                      return;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;</span><br><span class="line">              //这个之前看过</span><br><span class="line">              //判断线程是否应该阻塞，如果是，则安全阻塞，进入到parkAndCheckInterrupt将线程挂起</span><br><span class="line">              if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span><br><span class="line">                  parkAndCheckInterrupt())</span><br><span class="line">                  throw new InterruptedException();</span><br><span class="line">          &#125;</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">          if (failed) </span><br><span class="line">          	// 如果出现异常，则取消锁的获取，进行出队操作</span><br><span class="line">              cancelAcquire(node);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  //设置成头节点，并通过propagate判断是否可以激活</span><br><span class="line">private void setHeadAndPropagate(Node node, int propagate) &#123;</span><br><span class="line">      Node h = head; // Record old head for check below</span><br><span class="line">      setHead(node); //设置头结点</span><br><span class="line">      /*</span><br><span class="line">       * Try to signal next queued node if:</span><br><span class="line">       *   Propagation was indicated by caller,</span><br><span class="line">       *     or was recorded (as h.waitStatus either before</span><br><span class="line">       *     or after setHead) by a previous operation</span><br><span class="line">       *     (note: this uses sign-check of waitStatus because</span><br><span class="line">       *      PROPAGATE status may transition to SIGNAL.)</span><br><span class="line">       * and</span><br><span class="line">       *   The next node is waiting in shared mode,</span><br><span class="line">       *     or we don&apos;t know, because it appears null</span><br><span class="line">       *</span><br><span class="line">       * The conservatism in both of these checks may cause</span><br><span class="line">       * unnecessary wake-ups, but only when there are multiple</span><br><span class="line">       * racing acquires/releases, so most need signals now or soon</span><br><span class="line">       * anyway.</span><br><span class="line">       */</span><br><span class="line">      </span><br><span class="line">      if (propagate &gt; 0 || h == null || h.waitStatus &lt; 0 ||</span><br><span class="line">          (h = head) == null || h.waitStatus &lt; 0) &#123;</span><br><span class="line">          Node s = node.next;</span><br><span class="line">          //判断是否共享模式</span><br><span class="line">          if (s == null || s.isShared())</span><br><span class="line">          	//进行共享模式的释放</span><br><span class="line">              doReleaseShared();</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>这个CountDownLatch看了，其实看源码很好理解，但是又深入到AQS里面去了，也有很多地方不懂，刚刚在查资料的过程中，看到了几个新名字，也不算新名字吧，只是对概念的模糊不清在这记录一下</p>
+<h5 id="题外"><a href="#题外" class="headerlink" title="题外"></a>题外</h5><p><strong>AQS</strong>是AbstractQueuedSynchronizer的简称，AQS提供了一种实现阻塞锁和一系列依赖FIFO等待队列的同步器的框架</p>
+<p><strong>CLH</strong>是一个自旋锁，能确保无饥饿性，提供先来先服务的公平性。CLH锁也是一种基于链表的可扩展、高性能、公平的自旋锁，申请线程只在本地变量上自旋，它不断轮询前驱的状态，如果发现前驱释放了锁就结束自旋。</p>
+<p>AQS中有两种获取和释放资源的模式。</p>
+<p>AQS独占模式**只允许同时一个线程获取同一个许可。可以对应为一些锁ReetrantLock</p>
+<p><strong>AQS共享模式</strong>允许同时多个线程获取同一个许可。可以对应一些同步器类似CountDownLatch，CyclicBarrier</p>
+<h5 id="CyclicBarrier-1"><a href="#CyclicBarrier-1" class="headerlink" title="CyclicBarrier"></a>CyclicBarrier</h5><h6 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//parties可以理解为一个屏障</span><br><span class="line">public CyclicBarrier(int parties) &#123;</span><br><span class="line">    this(parties, null);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//构造函数会调用这个，其实parties，count和CountDownLatch类似</span><br><span class="line">public CyclicBarrier(int parties, Runnable barrierAction) &#123;</span><br><span class="line">    if (parties &lt;= 0) throw new IllegalArgumentException();</span><br><span class="line">    this.parties = parties;</span><br><span class="line">    this.count = parties;</span><br><span class="line">    this.barrierCommand = barrierAction;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="await-1"><a href="#await-1" class="headerlink" title="await()"></a>await()</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"> public int await() throws InterruptedException, BrokenBarrierException &#123;</span><br><span class="line">     try &#123;</span><br><span class="line">         return dowait(false, 0L);</span><br><span class="line">     &#125; catch (TimeoutException toe) &#123;</span><br><span class="line">         throw new Error(toe); // cannot happen</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> //核心方法就是这个，他不需要像CountDownLatch一样，需要调用CountDown</span><br><span class="line"> //而是直接去--count，然后</span><br><span class="line"> private int dowait(boolean timed, long nanos)</span><br><span class="line">     throws InterruptedException, BrokenBarrierException,</span><br><span class="line">            TimeoutException &#123;</span><br><span class="line">     final ReentrantLock lock = this.lock;</span><br><span class="line">     lock.lock();</span><br><span class="line">     try &#123;</span><br><span class="line">         final Generation g = generation;</span><br><span class="line"></span><br><span class="line">         if (g.broken)</span><br><span class="line">             throw new BrokenBarrierException();</span><br><span class="line"></span><br><span class="line">         if (Thread.interrupted()) &#123;</span><br><span class="line">             breakBarrier();</span><br><span class="line">             throw new InterruptedException();</span><br><span class="line">         &#125;</span><br><span class="line">//将count减1  </span><br><span class="line">         int index = --count;</span><br><span class="line">         //如果等于0，则表示已经达到屏障，就可以开始执行唤醒操作</span><br><span class="line">         if (index == 0) &#123;  // tripped</span><br><span class="line">             boolean ranAction = false;</span><br><span class="line">             try &#123;</span><br><span class="line">                 final Runnable command = barrierCommand;</span><br><span class="line">                 if (command != null)</span><br><span class="line">                     command.run();</span><br><span class="line">                 ranAction = true;</span><br><span class="line">                 nextGeneration();</span><br><span class="line">                 return 0;</span><br><span class="line">             &#125; finally &#123;</span><br><span class="line">                 if (!ranAction)</span><br><span class="line">                     breakBarrier();</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         // loop until tripped, broken, interrupted, or timed out</span><br><span class="line">         //线程运行到这里，就会被屏障挡住，执行await方法，挂起线程</span><br><span class="line">         for (;;) &#123;</span><br><span class="line">             try &#123;</span><br><span class="line">             	//这里是设置超时操作的一些，这次先不管</span><br><span class="line">                 if (!timed)</span><br><span class="line">                     trip.await();</span><br><span class="line">                 else if (nanos &gt; 0L)</span><br><span class="line">                     nanos = trip.awaitNanos(nanos);</span><br><span class="line">             &#125; catch (InterruptedException ie) &#123;</span><br><span class="line">            		//如果抛出异常，则破坏屏障，然后抛出异常</span><br><span class="line">                 if (g == generation &amp;&amp; ! g.broken) &#123;</span><br><span class="line">                     breakBarrier();</span><br><span class="line">                     throw ie;</span><br><span class="line">                 &#125; else &#123;</span><br><span class="line">                     // We&apos;re about to finish waiting even if we had not</span><br><span class="line">                     // been interrupted, so this interrupt is deemed to</span><br><span class="line">                     // &quot;belong&quot; to subsequent execution.</span><br><span class="line">                     Thread.currentThread().interrupt();</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">	</span><br><span class="line">             if (g.broken)</span><br><span class="line">                 throw new BrokenBarrierException();</span><br><span class="line">	</span><br><span class="line">	//如果换了新的一轮，返回上一轮线程达到count的顺序</span><br><span class="line">             if (g != generation)</span><br><span class="line">                 return index;</span><br><span class="line"></span><br><span class="line">             if (timed &amp;&amp; nanos &lt;= 0L) &#123;</span><br><span class="line">                 breakBarrier();</span><br><span class="line">                 throw new TimeoutException();</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125; finally &#123;</span><br><span class="line">         lock.unlock();</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> //唤醒，然后重新激活，重置count值和屏障</span><br><span class="line"> private void breakBarrier() &#123;</span><br><span class="line">     generation.broken = true;</span><br><span class="line">     count = parties;</span><br><span class="line">     trip.signalAll();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>这个就简单多了，这两个同步计数器，其实实现的功能差不多，下面再来看看一些细微的区别</p>
+<h4 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h4><p>CountDownLatch是执行的CountDown()方法将计数器的值-1，这个是可控的，如果数值减到0之后，就开始执行后续操作</p>
+<p>CyclicBarrier 是只用让方法await()等待之后，内部会自动去-1，然后达到初始化设置的值，就会激活全部线程</p>
+<p>如果难理解的话，我举个例子</p>
+<p>CountDownLatch就好比一个跑步比赛，来了一个人，计数器就 -1 ，人来起了，计数器到0了，则就开始跑，此时await阻塞的是主体，都不能动</p>
+<p>CyclicBarrier 更像是一个屏障，屏障只能承受10g的力量，来了一个线程就相当于给这个屏障加了1g,然后达到10g的时候，这个屏障就会破了，然后所有线程一起跑起来，然后跑完了，自动修复，等着承受下一个10g,这个await阻塞的是单个线程</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>快下班了，今天星期五，收货颇丰，研究了两个同步计数器，感觉AQS里面的内容，我看的还是太片面了，没有顾上整体，在今天查资料的过程中，看到了很多东西理解起来还是有点困难，接下来研究到了在继续分析</p>
+<h4 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h4><p>​    这段时间看的东西比较杂，这里看一下，那里看一下，看到什么东西，就研究一下，不知道好不好，反正我感觉挺乱的，项目这段时间也不是挺忙，上述的两个计数器在项目里面搜了一下，基本上没怎么用，只能说以后要用了，知道这个东西，能快速的上手。</p>
+<p>​    最近感觉来自于经济方面的压力越来越大，房贷已经还了3个月，基本上就是还了房贷，就没啥钱的地步了，可能近几年是最难熬的几年吧，以后转了公积金，或者一个收入水平提升就会好一点，突然想到我还蛮像乐观锁的，先啥也不管，该吃吃该喝喝，等出问题，在来想办法，哈哈。加油哦，给自己一个目标吧，明年尝试去面试，去看看外面的世界是什么样的，说不定能对自己目前的收入水平得到一个提升</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+<div>
+      
+        
+      
+</div>
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Congz</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://Zhucong123.github.io/线程同步组件CountDownLatch与CyclicBarrier.html" title="线程同步组件CountDownLatch与CyclicBarrier">https://Zhucong123.github.io/线程同步组件CountDownLatch与CyclicBarrier.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-heart"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/并发，JAVA，源码/" rel="tag"><i class="fa fa-tag"></i> 并发，JAVA，源码</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/排序算法：基数排序.html" rel="next" title="排序算法：基数排序">
+                <i class="fa fa-chevron-left"></i> 排序算法：基数排序
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/ThreadLocal表层分析.html" rel="prev" title="ThreadLocal表层分析">
+                ThreadLocal表层分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Congz">
+            
+              <p class="site-author-name" itemprop="name">Congz</p>
+              <div class="site-description motion-element" itemprop="description">平平淡淡，任其自然</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前文"><span class="nav-number">1.</span> <span class="nav-text">前文</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开始"><span class="nav-number">2.</span> <span class="nav-text">开始</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正文"><span class="nav-number">3.</span> <span class="nav-text">正文</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#例子"><span class="nav-number">4.</span> <span class="nav-text">例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#CountDownLatch"><span class="nav-number">4.1.</span> <span class="nav-text">CountDownLatch</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CyclicBarrier"><span class="nav-number">4.2.</span> <span class="nav-text">CyclicBarrier</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#源码"><span class="nav-number">5.</span> <span class="nav-text">源码</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#CountDownLatch-1"><span class="nav-number">5.1.</span> <span class="nav-text">CountDownLatch</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#countDown"><span class="nav-number">5.1.1.</span> <span class="nav-text">countDown()</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#await"><span class="nav-number">5.1.2.</span> <span class="nav-text">await()</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#题外"><span class="nav-number">5.2.</span> <span class="nav-text">题外</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CyclicBarrier-1"><span class="nav-number">5.3.</span> <span class="nav-text">CyclicBarrier</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#构造函数"><span class="nav-number">5.3.1.</span> <span class="nav-text">构造函数</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#await-1"><span class="nav-number">5.3.2.</span> <span class="nav-text">await()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#区别"><span class="nav-number">6.</span> <span class="nav-text">区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#最后"><span class="nav-number">8.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+<div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Congz</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">131k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">2:01</span>
+  
+</div>
+
+
+
+
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共41.5k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: true,
+    appId: 'w6UDP96bFu04gBNb0hpt2NJ0-gzGzoHsz',
+    appKey: '7uvUMhEgLi9FodiNW1ch1cE6',
+    placeholder: 'ヾﾉ≧∀≦)o 来呀！吐槽一番吧！',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

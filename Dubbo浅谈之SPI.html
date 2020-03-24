@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #1E92FB; /*进度条颜色*/
+        height: 3px;
+    }
+    .pace .pace-progress-inner {
+         box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言​    突然发现，自己手动搭建一个项目，从头到尾自己来还是挺锻炼人的，今天尝试了自己在本地使用Dubbo+zookeeper搭建了两个项目，一个作为服务提供端，一个作为消费端，搭建的过程中，问题重重。简直不要太麻烦。 ​    首先在本地启动dubbo-admin就废了好长时间，服务端启动正常，但是消费端没有找到服务，然后又从头来弄服务端，总之，一番周折之后，一个简单的项目能正常跑起来了。在">
+<meta name="keywords" content="Dubbo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dubbo浅谈之SPI">
+<meta property="og:url" content="https://Zhucong123.github.io/Dubbo浅谈之SPI.html">
+<meta property="og:site_name" content="Congz | Blog">
+<meta property="og:description" content="前言​    突然发现，自己手动搭建一个项目，从头到尾自己来还是挺锻炼人的，今天尝试了自己在本地使用Dubbo+zookeeper搭建了两个项目，一个作为服务提供端，一个作为消费端，搭建的过程中，问题重重。简直不要太麻烦。 ​    首先在本地启动dubbo-admin就废了好长时间，服务端启动正常，但是消费端没有找到服务，然后又从头来弄服务端，总之，一番周折之后，一个简单的项目能正常跑起来了。在">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-28T03:01:49.052Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dubbo浅谈之SPI">
+<meta name="twitter:description" content="前言​    突然发现，自己手动搭建一个项目，从头到尾自己来还是挺锻炼人的，今天尝试了自己在本地使用Dubbo+zookeeper搭建了两个项目，一个作为服务提供端，一个作为消费端，搭建的过程中，问题重重。简直不要太麻烦。 ​    首先在本地启动dubbo-admin就废了好长时间，服务端启动正常，但是消费端没有找到服务，然后又从头来弄服务端，总之，一番周折之后，一个简单的项目能正常跑起来了。在">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Congz | Blog" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://Zhucong123.github.io/Dubbo浅谈之SPI">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Dubbo浅谈之SPI | Congz | Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?9462705702727bdff9e7bd016db7169c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Congz | Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静坐常思己过，闲谈莫论人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://Zhucong123.github.io/Dubbo浅谈之SPI.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Congz">
+      <meta itemprop="description" content="平平淡淡，任其自然">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Congz | Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Dubbo浅谈之SPI
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-27 19:12:32" itemprop="dateCreated datePublished" datetime="2019-11-27T19:12:32+08:00">2019-11-27</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-11-28 11:01:49" itemprop="dateModified" datetime="2019-11-28T11:01:49+08:00">2019-11-28</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Dubbo/" itemprop="url" rel="index"><span itemprop="name">Dubbo</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/Dubbo浅谈之SPI.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/Dubbo浅谈之SPI.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">11k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">10 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>​    突然发现，自己手动搭建一个项目，从头到尾自己来还是挺锻炼人的，今天尝试了自己在本地使用Dubbo+zookeeper搭建了两个项目，一个作为服务提供端，一个作为消费端，搭建的过程中，问题重重。简直不要太麻烦。</p>
+<p>​    首先在本地启动dubbo-admin就废了好长时间，服务端启动正常，但是消费端没有找到服务，然后又从头来弄服务端，总之，一番周折之后，一个简单的项目能正常跑起来了。在翻阅官方文档的时候，发现了挺有趣的东西，有对源码的分析，写的还挺详细的。</p>
+<p>​    在之前使用WCF的过程中，和这个类似，由于是微软的东西，没有开源，也没有仔细研究怎么实现的，今天就借着官网的文章，来仔细看一下dubbo是怎么一回事</p>
+<h4 id="Dubbo怎么用"><a href="#Dubbo怎么用" class="headerlink" title="Dubbo怎么用"></a>Dubbo怎么用</h4><p>​    这个挺简单的，我个人建议先装dubbo-admin，这样，你才好判断问题在哪，比如是服务没有注册，或者是服务注册成功了，但是消费端出现问题。总之，装了dubbo-admin之后，你才好定位问题在哪。dubbo-admin怎么装就不写了，百度一大堆。</p>
+<p>​    然后就是使用了，先写服务，能注册成功了，在去写消费端，好像是废话。spring boot集成化挺高的，什么东西配置一下就好了，反正不难，出问题百度。啥都有</p>
+<h4 id="SPI"><a href="#SPI" class="headerlink" title="SPI"></a>SPI</h4><p>​    至于dubbo怎么用就不说了，要用上这个东西，挺简单，跟着项目走就好了，无非写方法，调用方法，只不过这个是分布式的，可以跨项目调用，跨项目调用的好处就不言而喻了。中间的实现过程就不需要你管，都有dubbo来做</p>
+<p>​    来说说SPI吧，SPI(<strong>Service Provider Interface</strong>)服务发现机制，<em>SPI 的本质是将接口实现类的全限定名配置在文件中，并由服务加载器读取配置文件，加载实现类。</em>这是官网的话，我可以这么理解，就是将接口的实现类的路径放在一个文件里面，然后需要调用这个方法的时候，我们就去这个文件里面找这个配置的实现类。这样看来，就挺简单的，可配置的东西，理解起来就不难了。</p>
+<h5 id="Java-SPI"><a href="#Java-SPI" class="headerlink" title="Java SPI"></a>Java SPI</h5><p>​    我在我项目里面写了Java SPI的demo源码如下：</p>
+<p>​    首先在resources的下面创建META-INF这个文件夹，然后在下级创建services这个文件夹，为什么叫这个名字，你去看看ServiceLoader的源码就能知道，它是固定使用这个去作为前缀查找配置的实现类</p>
+<p>​    在然后在下面创建一个文件 :这里是重点，需要<strong>创建一个以接口全限定名的配置文件</strong>，具体操作就是找到需要代理的接口，然后右键Copy Reference，就是文件名，文件里面的内容为实现类的全限定名，依旧找到实现类Copy Reference就好了。这是配置，在看看源码吧！</p>
+<p>​    从下面源码能看出来，主要是ServiceLoader.load去加载实现类，然后循环serviceLoader就能将Robot的所有实现方法全部调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ServiceLoader&lt;Robot&gt; serviceLoader=ServiceLoader.load(Robot.class);</span><br><span class="line">System.out.println(&quot;java SPI&quot;);</span><br><span class="line">serviceLoader.forEach(Robot::sayHello);</span><br></pre></td></tr></table></figure>
+<p>这里就能看到Java SPI的缺点，它只能通过遍历全部获取，也就是说接口的实现类全部加载实例化了一遍，但是如果接口实现类多了，就很浪费了。换句话说，就是不能通过参数去获取指定的实现类。Dubbo就能。</p>
+<h5 id="Dubbo-SPI"><a href="#Dubbo-SPI" class="headerlink" title="Dubbo SPI"></a>Dubbo SPI</h5><p>依旧说说源码：配置的话，还是在META-INF下面创建一个dubbo文件夹，然后dubbo文件夹里面依旧创建一个和Java SPI一样的全限定名的文件。</p>
+<p>区别来了：在Dubbo SPI里面创建实现类是采用的键值对的形式创建的   <strong>key=com.XXX.XXX</strong> 这个key就是用来我们后续需要获取指定实现类的关键</p>
+<p>下方先获取了接口的所有实现类，然后根据不同的key值，去取不同的实现类，来使用。对的，还需要在接口上面添加@SPI注解，这样ExtensionLoader才能识别到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ExtensionLoader&lt;Robot&gt; extensionLoader=ExtensionLoader.getExtensionLoader(Robot.class);</span><br><span class="line">Robot optimmusProme=extensionLoader.getExtension(&quot;OptimusProme&quot;);</span><br><span class="line">optimmusProme.sayHello();</span><br><span class="line">Robot bumblebee=extensionLoader.getExtension(&quot;Bumblebee&quot;);</span><br><span class="line">bumblebee.sayHello();</span><br></pre></td></tr></table></figure>
+<p>demo就到这里，这篇文章的重点不是这个，咱们是来看源码的。</p>
+<h5 id="Dubbo-SPI实现源码"><a href="#Dubbo-SPI实现源码" class="headerlink" title="Dubbo SPI实现源码"></a>Dubbo SPI实现源码</h5><p>源码的顺序就从上面的代码来看</p>
+<h6 id="getExtensionLoader"><a href="#getExtensionLoader" class="headerlink" title="getExtensionLoader"></a>getExtensionLoader</h6><p>获取一个ExtensionLoader实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public static &lt;T&gt; ExtensionLoader&lt;T&gt; getExtensionLoader(Class&lt;T&gt; type) &#123;</span><br><span class="line">    if (type == null) &#123;</span><br><span class="line">        throw new IllegalArgumentException(&quot;Extension type == null&quot;);</span><br><span class="line">    &#125; else if (!type.isInterface()) &#123; </span><br><span class="line">        throw new IllegalArgumentException(&quot;Extension type(&quot; + type + &quot;) is not interface!&quot;);</span><br><span class="line">    &#125; else if (!withExtensionAnnotation(type)) &#123; //如果接口上没有@SPI注解，抛异常</span><br><span class="line">        throw new IllegalArgumentException(&quot;Extension type(&quot; + type + &quot;) is not extension, because WITHOUT @&quot; + SPI.class.getSimpleName() + &quot; Annotation!&quot;);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">    	//先尝试获取，没有就实例化一个</span><br><span class="line">        ExtensionLoader&lt;T&gt; loader = (ExtensionLoader)EXTENSION_LOADERS.get(type);</span><br><span class="line">        if (loader == null) &#123;</span><br><span class="line">            EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader(type));</span><br><span class="line">            loader = (ExtensionLoader)EXTENSION_LOADERS.get(type);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return loader;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="getExtension"><a href="#getExtension" class="headerlink" title="getExtension"></a>getExtension</h6><p>获取实现类的对象实例</p>
+<p>看上去和上面的方法挺类似的，先从缓存里面获取实例，没有就new一个，然后从目标对象里面获取方法，如果在没有就去createExtension创建一个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">public T getExtension(String name) &#123;</span><br><span class="line">    if (name != null &amp;&amp; name.length() != 0) &#123;</span><br><span class="line">        if (&quot;true&quot;.equals(name)) &#123;</span><br><span class="line">        	//创建默认的实例</span><br><span class="line">            return this.getDefaultExtension();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">        	//先从缓存获取目标对象</span><br><span class="line">            Holder&lt;Object&gt; holder = (Holder)this.cachedInstances.get(name);</span><br><span class="line">            if (holder == null) &#123;</span><br><span class="line">                this.cachedInstances.putIfAbsent(name, new Holder());</span><br><span class="line">                holder = (Holder)this.cachedInstances.get(name);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            Object instance = holder.get();</span><br><span class="line">            //双重检查</span><br><span class="line">            if (instance == null) &#123;</span><br><span class="line">                synchronized(holder) &#123;</span><br><span class="line">                    instance = holder.get();</span><br><span class="line">                    if (instance == null) &#123;</span><br><span class="line">                    	//创建这个实例</span><br><span class="line">                        instance = this.createExtension(name);</span><br><span class="line">                        holder.set(instance);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return instance;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        throw new IllegalArgumentException(&quot;Extension name == null&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="createExtension"><a href="#createExtension" class="headerlink" title="createExtension"></a>createExtension</h6><p>创建实例化对象</p>
+<p>我直接在源码里面注释几个重点的地方</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">private T createExtension(String name) &#123;</span><br><span class="line">	//获取所有扩展类的实例，然后根据名字获取当前需要获取的实例对象</span><br><span class="line">    Class&lt;?&gt; clazz = (Class)this.getExtensionClasses().get(name);</span><br><span class="line">    if (clazz == null) &#123;</span><br><span class="line">        throw this.findException(name);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            T instance = EXTENSION_INSTANCES.get(clazz);</span><br><span class="line">            if (instance == null) &#123;</span><br><span class="line">            	//通过反射获取实例</span><br><span class="line">                EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());</span><br><span class="line">                instance = EXTENSION_INSTANCES.get(clazz);</span><br><span class="line">            &#125;</span><br><span class="line">//注入，但是只支持前缀为set的方法实现注入</span><br><span class="line">            this.injectExtension(instance);</span><br><span class="line">            Set&lt;Class&lt;?&gt;&gt; wrapperClasses = this.cachedWrapperClasses;</span><br><span class="line">            Class wrapperClass;</span><br><span class="line">            if (wrapperClasses != null &amp;&amp; !wrapperClasses.isEmpty()) &#123;</span><br><span class="line">                for(Iterator i$ = wrapperClasses.iterator(); i$.hasNext(); instance = this.injectExtension(wrapperClass.getConstructor(this.type).newInstance(instance))) &#123;</span><br><span class="line">                    wrapperClass = (Class)i$.next();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return instance;</span><br><span class="line">        &#125; catch (Throwable var7) &#123;</span><br><span class="line">            throw new IllegalStateException(&quot;Extension instance(name: &quot; + name + &quot;, class: &quot; + this.type + &quot;)  could not be instantiated: &quot; + var7.getMessage(), var7);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个里面的重点是getExtensionClasses()是获取所有扩展的实例</p>
+<h6 id="getExtensionClasses"><a href="#getExtensionClasses" class="headerlink" title="getExtensionClasses"></a>getExtensionClasses</h6><p>这个获取所有扩展的实例，先从缓存里面获取，没有就去加载扩展的实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">private Map&lt;String, Class&lt;?&gt;&gt; getExtensionClasses() &#123;</span><br><span class="line">	//从缓存获取</span><br><span class="line">    Map&lt;String, Class&lt;?&gt;&gt; classes = cachedClasses.get();</span><br><span class="line">    //双重检查</span><br><span class="line">    if (classes == null) &#123;</span><br><span class="line">        synchronized (cachedClasses) &#123;</span><br><span class="line">            classes = cachedClasses.get();</span><br><span class="line">            if (classes == null) &#123;</span><br><span class="line">            	//加载扩展实例</span><br><span class="line">                classes = loadExtensionClasses();</span><br><span class="line">                cachedClasses.set(classes);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return classes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="loadExtensionClasses"><a href="#loadExtensionClasses" class="headerlink" title="loadExtensionClasses"></a>loadExtensionClasses</h6><p>加载所有扩展实例对象，我们只用看下面的loadDirectory就好，上面的是在其他方法调用。</p>
+<p>loadDirectory的第二个参数是三个文件夹，表示，他会从这三个文件夹去找扩展类的实例化方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">private Map&lt;String, Class&lt;?&gt;&gt; loadExtensionClasses() &#123;</span><br><span class="line">    final SPI defaultAnnotation = type.getAnnotation(SPI.class);</span><br><span class="line">    if (defaultAnnotation != null) &#123;</span><br><span class="line">        String value = defaultAnnotation.value();</span><br><span class="line">        if ((value = value.trim()).length() &gt; 0) &#123;</span><br><span class="line">            String[] names = NAME_SEPARATOR.split(value);</span><br><span class="line">            if (names.length &gt; 1) &#123;</span><br><span class="line">                throw new IllegalStateException(&quot;more than 1 default extension name on extension &quot; + type.getName()</span><br><span class="line">                        + &quot;: &quot; + Arrays.toString(names));</span><br><span class="line">            &#125;</span><br><span class="line">            if (names.length == 1) cachedDefaultName = names[0];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">		</span><br><span class="line">    Map&lt;String, Class&lt;?&gt;&gt; extensionClasses = new HashMap&lt;String, Class&lt;?&gt;&gt;();</span><br><span class="line">    loadDirectory(extensionClasses, DUBBO_INTERNAL_DIRECTORY);</span><br><span class="line">    loadDirectory(extensionClasses, DUBBO_DIRECTORY);</span><br><span class="line">    loadDirectory(extensionClasses, SERVICES_DIRECTORY);</span><br><span class="line">    return extensionClasses;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="loadDirectory"><a href="#loadDirectory" class="headerlink" title="loadDirectory"></a>loadDirectory</h6><p>从文件夹里面找到接口全限定名的扩展实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">private void loadDirectory(Map&lt;String, Class&lt;?&gt;&gt; extensionClasses, String dir) &#123;</span><br><span class="line">    String fileName = dir + type.getName(); //获取文件夹全路径</span><br><span class="line">    try &#123;</span><br><span class="line">        Enumeration&lt;java.net.URL&gt; urls;</span><br><span class="line">        ClassLoader classLoader = findClassLoader();</span><br><span class="line">        if (classLoader != null) &#123;</span><br><span class="line">            urls = classLoader.getResources(fileName);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            urls = ClassLoader.getSystemResources(fileName);</span><br><span class="line">        &#125;</span><br><span class="line">        if (urls != null) &#123;</span><br><span class="line">            while (urls.hasMoreElements()) &#123;</span><br><span class="line">                java.net.URL resourceURL = urls.nextElement();</span><br><span class="line">                //加载实现类</span><br><span class="line">                loadResource(extensionClasses, classLoader, resourceURL);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; catch (Throwable t) &#123;</span><br><span class="line">        logger.error(&quot;Exception when load extension class(interface: &quot; +</span><br><span class="line">                type + &quot;, description file: &quot; + fileName + &quot;).&quot;, t);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="loadResource"><a href="#loadResource" class="headerlink" title="loadResource"></a>loadResource</h6><p>其实这方法主要是读取文本，解析字符串</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">private void loadResource(Map&lt;String, Class&lt;?&gt;&gt; extensionClasses, ClassLoader classLoader, java.net.URL resourceURL) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        BufferedReader reader = new BufferedReader(new InputStreamReader(resourceURL.openStream(), &quot;utf-8&quot;));</span><br><span class="line">        try &#123;</span><br><span class="line">            String line;</span><br><span class="line">            while ((line = reader.readLine()) != null) &#123;</span><br><span class="line">            	//不要注释</span><br><span class="line">                final int ci = line.indexOf(&apos;#&apos;);</span><br><span class="line">                if (ci &gt;= 0) line = line.substring(0, ci);</span><br><span class="line">                line = line.trim();</span><br><span class="line">                if (line.length() &gt; 0) &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        String name = null;</span><br><span class="line">                        //按=分割，截取键值对</span><br><span class="line">                        int i = line.indexOf(&apos;=&apos;);</span><br><span class="line">                        if (i &gt; 0) &#123;</span><br><span class="line">                            name = line.substring(0, i).trim();</span><br><span class="line">                            line = line.substring(i + 1).trim();</span><br><span class="line">                        &#125;</span><br><span class="line">                        if (line.length() &gt; 0) &#123;</span><br><span class="line">                        	//加载扩展的实例，并且载入缓存</span><br><span class="line">                            loadClass(extensionClasses, resourceURL, Class.forName(line, true, classLoader), name);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; catch (Throwable t) &#123;</span><br><span class="line">                        IllegalStateException e = new IllegalStateException(&quot;Failed to load extension class(interface: &quot; + type + &quot;, class line: &quot; + line + &quot;) in &quot; + resourceURL + &quot;, cause: &quot; + t.getMessage(), t);</span><br><span class="line">                        exceptions.put(line, e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            reader.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; catch (Throwable t) &#123;</span><br><span class="line">        logger.error(&quot;Exception when load extension class(interface: &quot; +</span><br><span class="line">                type + &quot;, class file: &quot; + resourceURL + &quot;) in &quot; + resourceURL, t);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>好了，到这里没什么好讲的了，Dubbo SPI和Java SPI的区别最明显的就是 dubbo SPI是采用键值对的形式，需要哪个实例就去取相应的实例就好了，而Java SPI是遍历使用所有</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>有一个全面的文档真好，而且是中文文档，太友好了，不懂的，看看文档，看看代码，调试一下程序，基本就能看个八九不离十，好了，不说了，划水去了。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+<div>
+      
+        
+      
+</div>
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Congz</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://Zhucong123.github.io/Dubbo浅谈之SPI.html" title="Dubbo浅谈之SPI">https://Zhucong123.github.io/Dubbo浅谈之SPI.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-heart"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Dubbo/" rel="tag"><i class="fa fa-tag"></i> Dubbo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/ThreadLocal表层分析.html" rel="next" title="ThreadLocal表层分析">
+                <i class="fa fa-chevron-left"></i> ThreadLocal表层分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Mysql索引.html" rel="prev" title="Mysql索引">
+                Mysql索引 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Congz">
+            
+              <p class="site-author-name" itemprop="name">Congz</p>
+              <div class="site-description motion-element" itemprop="description">平平淡淡，任其自然</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dubbo怎么用"><span class="nav-number">2.</span> <span class="nav-text">Dubbo怎么用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI"><span class="nav-number">3.</span> <span class="nav-text">SPI</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Java-SPI"><span class="nav-number">3.1.</span> <span class="nav-text">Java SPI</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dubbo-SPI"><span class="nav-number">3.2.</span> <span class="nav-text">Dubbo SPI</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dubbo-SPI实现源码"><span class="nav-number">3.3.</span> <span class="nav-text">Dubbo SPI实现源码</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#getExtensionLoader"><span class="nav-number">3.3.1.</span> <span class="nav-text">getExtensionLoader</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#getExtension"><span class="nav-number">3.3.2.</span> <span class="nav-text">getExtension</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#createExtension"><span class="nav-number">3.3.3.</span> <span class="nav-text">createExtension</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#getExtensionClasses"><span class="nav-number">3.3.4.</span> <span class="nav-text">getExtensionClasses</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#loadExtensionClasses"><span class="nav-number">3.3.5.</span> <span class="nav-text">loadExtensionClasses</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#loadDirectory"><span class="nav-number">3.3.6.</span> <span class="nav-text">loadDirectory</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#loadResource"><span class="nav-number">3.3.7.</span> <span class="nav-text">loadResource</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+<div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Congz</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">131k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">2:01</span>
+  
+</div>
+
+
+
+
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共41.5k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: true,
+    appId: 'w6UDP96bFu04gBNb0hpt2NJ0-gzGzoHsz',
+    appKey: '7uvUMhEgLi9FodiNW1ch1cE6',
+    placeholder: 'ヾﾉ≧∀≦)o 来呀！吐槽一番吧！',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
