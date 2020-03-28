@@ -126,7 +126,7 @@
 <meta property="og:description" content="HashMap简单分析 是什么?HashMap是通过一个数组和链表加上红黑树来实现的，通过计算散列码（hash）来决定存储位置，所以查询时只用根据散列码去找到指定的值，速度会比较快 当hash冲突之后 HashMap会自动转换成链表来解决hash冲突，jdk1.8版本之后HashMap的实现方式是数组和链表加红黑树来实现，当链表节点长度达到一定程度（8）时，会自动扩展成红黑树 这里得说一下JDK1">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://zhucong123.github.io/HashMap表层分析/1.png">
-<meta property="og:updated_time" content="2020-03-24T09:16:59.852Z">
+<meta property="og:updated_time" content="2020-03-28T05:37:25.166Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HashMap表层分析">
 <meta name="twitter:description" content="HashMap简单分析 是什么?HashMap是通过一个数组和链表加上红黑树来实现的，通过计算散列码（hash）来决定存储位置，所以查询时只用根据散列码去找到指定的值，速度会比较快 当hash冲突之后 HashMap会自动转换成链表来解决hash冲突，jdk1.8版本之后HashMap的实现方式是数组和链表加红黑树来实现，当链表节点长度达到一定程度（8）时，会自动扩展成红黑树 这里得说一下JDK1">
@@ -452,7 +452,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-03-24 17:16:59" itemprop="dateModified" datetime="2020-03-24T17:16:59+08:00">2020-03-24</time>
+                <time title="修改时间：2020-03-28 13:37:25" itemprop="dateModified" datetime="2020-03-28T13:37:25+08:00">2020-03-28</time>
               
             
           </span>
@@ -518,7 +518,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">12k</span>
+                <span title="本文字数">13k</span>
               
 
               
@@ -552,13 +552,16 @@
       
 
       
-        <h2 id="HashMap简单分析"><a href="#HashMap简单分析" class="headerlink" title="HashMap简单分析"></a>HashMap简单分析</h2><p><img src="/HashMap表层分析\1.png" alt></p>
+        <h2 id="HashMap简单分析"><a href="#HashMap简单分析" class="headerlink" title="HashMap简单分析"></a>HashMap简单分析</h2><p><img src="/HashMap表层分析/1.png" alt></p>
 <h4 id="是什么"><a href="#是什么" class="headerlink" title="是什么?"></a>是什么?</h4><p>HashMap是通过一个数组和链表加上红黑树来实现的，通过计算散列码（hash）来决定存储位置，所以查询时只用根据散列码去找到指定的值，速度会比较快</p>
 <p>当hash冲突之后 HashMap会自动转换成链表来解决hash冲突，jdk1.8版本之后HashMap的实现方式是数组和链表加红黑树来实现，当链表节点长度达到一定程度（8）时，会自动扩展成红黑树</p>
 <p>这里得说一下JDK1.7版本的HashMap</p>
 <p>1.7版本有一个缺点，就是当Hash冲突的时候，就会在当前桶上面创建链表，这样链表会越来越长，然后查询的效率会越来越低</p>
+<p>1.7版本是采用的头插法，在插入时，新元素会放在链表头部，会改变链表上面的顺醋，如果扩容后，重新计算hash，则有可能会导致循环链路。例A节点的next指向B,B节点next指向C，C节点next指向A。1.8之后全部采用尾插法</p>
 <h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><p>如果键值A计算得到的hash为1，放到map里面去，如果键值为B计算得到的hash也为1，此时hash冲突，B就会放到链表的第一个位置，A就会放到后面，如果继续往数组里面添加B，他的hash码一样，他的键值也一样，则会覆盖原来的值</p>
-<h3 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h3><h4 id="基本属性"><a href="#基本属性" class="headerlink" title="基本属性"></a>基本属性</h4><p>默认初始的容量 因为底层的数组的实现，所以就是数组的默认大小</p>
+<h3 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h3><h4 id="基本属性"><a href="#基本属性" class="headerlink" title="基本属性"></a>基本属性</h4><p>数据结构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; &#123;</span><br><span class="line">        final int hash;</span><br><span class="line">        final K key;</span><br><span class="line">        V value;</span><br><span class="line">        Node&lt;K,V&gt; next;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>默认初始的容量 因为底层的数组的实现，所以就是数组的默认大小</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_INITIAL_CAPACITY = <span class="number">1</span> &lt;&lt; <span class="number">4</span>; <span class="comment">// aka 16</span></span><br></pre></td></tr></table></figure>
 <p>数组最大的容量 1073741824</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAXIMUM_CAPACITY = <span class="number">1</span> &lt;&lt; <span class="number">30</span>;</span><br></pre></td></tr></table></figure>
@@ -922,7 +925,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">131k</span>
+    <span title="站点总字数">132k</span>
   
 
   
@@ -944,7 +947,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共41.5k字</span>
+  <span class="post-count">博客全站共41.7k字</span>
 </div>
         
 <div class="busuanzi-count">
