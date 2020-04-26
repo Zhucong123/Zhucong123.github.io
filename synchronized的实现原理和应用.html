@@ -42,8 +42,8 @@
   
     
     
-  <script src="/个人博客/lib/pace/pace.min.js?v=1.0.2"></script>
-  <link rel="stylesheet" href="/个人博客/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
 
 
 
@@ -65,21 +65,21 @@
 
 
 
-<link rel="stylesheet" href="/个人博客/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
 
-<link rel="stylesheet" href="/个人博客/css/main.css?v=7.1.0">
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/个人博客/images/apple-touch-icon-next.png?v=7.1.0">
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/个人博客/images/favicon.ico?v=7.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/个人博客/images/favicon.ico?v=7.1.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=7.1.0">
 
 
-  <link rel="mask-icon" href="/个人博客/images/logo.svg?v=7.1.0" color="#222">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
 
 
 
@@ -90,7 +90,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/个人博客/',
+    root: '/',
     scheme: 'Gemini',
     version: '7.1.0',
     sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
@@ -121,27 +121,27 @@
 <meta name="keywords" content="JAVA,并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="synchronized的实现原理和应用">
-<meta property="og:url" content="https://gitee.com/CongZ/GeRenBoKe.git/synchronized的实现原理和应用.html">
+<meta property="og:url" content="https://Zhucong123.github.io/synchronized的实现原理和应用.html">
 <meta property="og:site_name" content="Congz | Blog">
 <meta property="og:description" content="前言下班回来无事，电视剧没更新，吃鸡没队友，无奈打开电脑，看见旁边落灰已久的《Java并发编程的艺术》随手拿起来翻了几页，作为程序员的我感觉发现了新大陆，瞬间一发不可收拾，越看越有意思。现在想想我为什么要买这本书呢，其实从工作以来，一直就在看这方面的内容，奈何网络上知识零碎，加上理解有差，所以买回来看看，看看完整的。增加自己知识的完整度。 对于这种工具书，我的观念是千万不能看PDF和各种电子的，工">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://gitee.com/synchronized的实现原理和应用/1.png">
-<meta property="og:image" content="https://gitee.com/synchronized的实现原理和应用/2.png">
+<meta property="og:image" content="https://zhucong123.github.io/synchronized的实现原理和应用/1.png">
+<meta property="og:image" content="https://zhucong123.github.io/synchronized的实现原理和应用/2.png">
 <meta property="og:updated_time" content="2019-08-07T00:40:54.063Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="synchronized的实现原理和应用">
 <meta name="twitter:description" content="前言下班回来无事，电视剧没更新，吃鸡没队友，无奈打开电脑，看见旁边落灰已久的《Java并发编程的艺术》随手拿起来翻了几页，作为程序员的我感觉发现了新大陆，瞬间一发不可收拾，越看越有意思。现在想想我为什么要买这本书呢，其实从工作以来，一直就在看这方面的内容，奈何网络上知识零碎，加上理解有差，所以买回来看看，看看完整的。增加自己知识的完整度。 对于这种工具书，我的观念是千万不能看PDF和各种电子的，工">
-<meta name="twitter:image" content="https://gitee.com/synchronized的实现原理和应用/1.png">
+<meta name="twitter:image" content="https://zhucong123.github.io/synchronized的实现原理和应用/1.png">
 
 
 
-  <link rel="alternate" href="/个人博客/atom.xml" title="Congz | Blog" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="Congz | Blog" type="application/atom+xml">
 
 
 
   
   
-  <link rel="canonical" href="https://gitee.com/CongZ/GeRenBoKe.git/synchronized的实现原理和应用">
+  <link rel="canonical" href="https://Zhucong123.github.io/synchronized的实现原理和应用">
 
 
 
@@ -218,7 +218,7 @@
     
 
     <div class="custom-logo-site-title">
-      <a href="/个人博客/" class="brand" rel="start">
+      <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
         <span class="site-title">Congz | Blog</span>
         <span class="logo-line-after"><i></i></span>
@@ -261,7 +261,7 @@
 
     
 
-    <a href="/个人博客/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
 
   </li>
         
@@ -278,7 +278,7 @@
 
     
 
-    <a href="/个人博客/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
 
   </li>
         
@@ -295,7 +295,7 @@
 
     
 
-    <a href="/个人博客/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
 
   </li>
         
@@ -312,7 +312,7 @@
 
     
 
-    <a href="/个人博客/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
 
   </li>
 
@@ -393,12 +393,12 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://gitee.com/CongZ/GeRenBoKe.git/个人博客/synchronized的实现原理和应用.html">
+    <link itemprop="mainEntityOfPage" href="https://Zhucong123.github.io/synchronized的实现原理和应用.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Congz">
       <meta itemprop="description" content="平平淡淡，任其自然">
-      <meta itemprop="image" content="/个人博客/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -470,7 +470,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/个人博客/categories/并发/" itemprop="url" rel="index"><span itemprop="name">并发</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/并发/" itemprop="url" rel="index"><span itemprop="name">并发</span></a></span>
 
                 
                 
@@ -489,8 +489,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/个人博客/synchronized的实现原理和应用.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/个人博客/synchronized的实现原理和应用.html" itemprop="commentCount"></span>
+                <a href="/synchronized的实现原理和应用.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/synchronized的实现原理和应用.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -642,7 +642,7 @@
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
     
-    <a href="https://gitee.com/CongZ/GeRenBoKe.git/synchronized的实现原理和应用.html" title="synchronized的实现原理和应用">https://gitee.com/CongZ/GeRenBoKe.git/synchronized的实现原理和应用.html</a>
+    <a href="https://Zhucong123.github.io/synchronized的实现原理和应用.html" title="synchronized的实现原理和应用">https://Zhucong123.github.io/synchronized的实现原理和应用.html</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
@@ -663,9 +663,9 @@
       
         <div class="post-tags">
           
-            <a href="/个人博客/tags/JAVA/" rel="tag"><i class="fa fa-tag"></i> JAVA</a>
+            <a href="/tags/JAVA/" rel="tag"><i class="fa fa-tag"></i> JAVA</a>
           
-            <a href="/个人博客/tags/并发/" rel="tag"><i class="fa fa-tag"></i> 并发</a>
+            <a href="/tags/并发/" rel="tag"><i class="fa fa-tag"></i> 并发</a>
           
         </div>
       
@@ -678,7 +678,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/个人博客/ArrayList和LinkedList简单讲讲.html" rel="next" title="ArrayList和LinkedList简单讲讲">
+              <a href="/ArrayList和LinkedList简单讲讲.html" rel="next" title="ArrayList和LinkedList简单讲讲">
                 <i class="fa fa-chevron-left"></i> ArrayList和LinkedList简单讲讲
               </a>
             
@@ -688,7 +688,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/个人博客/rabbitmq小记.html" rel="prev" title="rabbitmq小记">
+              <a href="/rabbitmq小记.html" rel="prev" title="rabbitmq小记">
                 rabbitmq小记 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -752,7 +752,7 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="/个人博客/images/avatar.gif" alt="Congz">
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Congz">
             
               <p class="site-author-name" itemprop="name">Congz</p>
               <div class="site-description motion-element" itemprop="description">平平淡淡，任其自然</div>
@@ -763,7 +763,7 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/个人博客/archives/">
+                  <a href="/archives/">
                 
                     <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">日志</span>
@@ -777,7 +777,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/个人博客/categories/">
+                      <a href="/categories/">
                     
                   
                     
@@ -810,7 +810,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/个人博客/tags/">
+                      <a href="/tags/">
                     
                   
                     
@@ -871,7 +871,7 @@
 
           
             <div class="feed-link motion-element">
-              <a href="/个人博客/atom.xml" rel="alternate">
+              <a href="/atom.xml" rel="alternate">
                 <i class="fa fa-rss"></i>
                 RSS
               </a>
@@ -1044,7 +1044,7 @@
     
     
   
-  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/个人博客/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
 
 
 
@@ -1059,45 +1059,45 @@
 
 
   
-  <script src="/个人博客/lib/jquery/index.js?v=2.1.3"></script>
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
 
   
-  <script src="/个人博客/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
 
   
-  <script src="/个人博客/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-
-  
-
-
-  <script src="/个人博客/js/utils.js?v=7.1.0"></script>
-
-  <script src="/个人博客/js/motion.js?v=7.1.0"></script>
-
-
-
-  
-  
-
-
-  <script src="/个人博客/js/affix.js?v=7.1.0"></script>
-
-  <script src="/个人博客/js/schemes/pisces.js?v=7.1.0"></script>
-
-
-
-
-  
-  <script src="/个人博客/js/scrollspy.js?v=7.1.0"></script>
-<script src="/个人博客/js/post-details.js?v=7.1.0"></script>
-
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
 
 
   
 
 
-  <script src="/个人博客/js/next-boot.js?v=7.1.0"></script>
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
 
 
   
@@ -1154,7 +1154,7 @@
     } else if (/json$/i.test(search_path)) {
       isXml = false;
     }
-    var path = "/个人博客/" + search_path;
+    var path = "/" + search_path;
     // monitor main search box;
 
     var onPopupClose = function (e) {
