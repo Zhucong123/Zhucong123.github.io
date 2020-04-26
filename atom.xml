@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://Zhucong123.github.io/"/>
-  <updated>2020-04-02T01:22:49.210Z</updated>
+  <updated>2020-04-24T06:31:12.889Z</updated>
   <id>https://Zhucong123.github.io/</id>
   
   <author>
@@ -15,6 +15,20 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Mybatis一级缓存和二级缓存</title>
+    <link href="https://Zhucong123.github.io/Mybatis%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98%E5%92%8C%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98.html"/>
+    <id>https://Zhucong123.github.io/Mybatis一级缓存和二级缓存.html</id>
+    <published>2020-04-24T06:31:12.000Z</published>
+    <updated>2020-04-24T06:31:12.889Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>广度优先遍历(BFS)和深度优先遍历（DFS）</title>
@@ -520,35 +534,6 @@
       <category term="源码" scheme="https://Zhucong123.github.io/tags/%E6%BA%90%E7%A0%81/"/>
     
       <category term="集合" scheme="https://Zhucong123.github.io/tags/%E9%9B%86%E5%90%88/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Nginx简单操作</title>
-    <link href="https://Zhucong123.github.io/Nginx%E7%AE%80%E5%8D%95%E6%93%8D%E4%BD%9C.html"/>
-    <id>https://Zhucong123.github.io/Nginx简单操作.html</id>
-    <published>2019-04-12T02:24:16.000Z</published>
-    <updated>2019-06-02T01:14:52.484Z</updated>
-    
-    <content type="html"><![CDATA[<p>前段时间刷知乎，看到两张图</p><p><img src="/Nginx简单操作/1.jpg" alt></p><p><img src="/Nginx简单操作/2.jpg" alt></p><p>这两幅图说明了正向代理和反向代理的区别</p><h3 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a>正向代理</h3><p>你已知要去访问某台服务器，但是你不能直接去访问，你必须通过Proxy去访问，已知的就科学上网来说，你需要访问国外的网站，你直接访问不了，你需要搭一个服务器，通过服务器你才能去看外面的世界</p><h3 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h3><p>反向代理也就是说当你要去访问服务器的时候，你必须通过Proxy去访问，然后Proxy会通过随机算法将你的请求分发到指定的服务器，然后服务器返回给你你需要的资源，这里有一个区别就是，你不知道你需要访问的是哪一台服务器，你只能访问Proxy服务器，这个也可以理解为负载均衡</p><p>先看看本地的配置</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">#每行结尾要加上分号</span><br><span class="line">#user  nobody;#设定用户组</span><br><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">#设置错误日志的路径，后面标识记录错误日志的级别</span><br><span class="line">#error_log  logs/error.log;</span><br><span class="line">#error_log  logs/error.log  notice;</span><br><span class="line">#error_log  logs/error.log  info;</span><br><span class="line">#指定nginx进程文件的地址</span><br><span class="line">#pid        logs/nginx.pid;</span><br><span class="line"></span><br><span class="line">#事件 </span><br><span class="line">events &#123;</span><br><span class="line">#use epoll;      #事件驱动模型，select|poll|kqueue|epoll|resig|/dev/poll|eventport</span><br><span class="line">#每个进程的最大连接数 worker_connections*worker_processes=max_connections</span><br><span class="line">    worker_connections  1024;#最大连接数，</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    #log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</span><br><span class="line">    #                  &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</span><br><span class="line">    #                  &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;</span><br><span class="line"></span><br><span class="line">    #access_log  logs/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    #tcp_nopush     on;</span><br><span class="line"></span><br><span class="line">    #keepalive_timeout  0;</span><br><span class="line">    keepalive_timeout  65;#连接的超时时间</span><br><span class="line"></span><br><span class="line">    #gzip  on;</span><br><span class="line">#设定负载均衡的服务器列表 myproject为列表的名字</span><br><span class="line">    upstream myproject &#123;  </span><br><span class="line">        #weigth参数表示权值，权值越高被分配到的几率越大 </span><br><span class="line">        #max_fails 当有#max_fails个请求失败，就表示后端的服务器不可用，默认为1，将其设置为0可以关闭检查 </span><br><span class="line">        #fail_timeout 在以后的#fail_timeout时间内nginx不会再把请求发往已检查出标记为不可用的服务器 </span><br><span class="line">        # backup 表示热备，表示当其他服务器发生事故时，才会启用那台热备的服务器</span><br><span class="line">        #这里指定多个源服务器，ip:端口,80端口的话可写可不写  </span><br><span class="line">        server 192.168.1.78:8080 weight=5 max_fails=2 fail_timeout=600s; </span><br><span class="line">        #server 192.168.1.222:8080 weight=3 max_fails=2 fail_timeout=600s backup;  </span><br><span class="line">    &#125; </span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;#监控的端口</span><br><span class="line">        server_name  localhost; #监控的地址 ，如果有多个主机名，则用空格隔开</span><br><span class="line"></span><br><span class="line">        #charset koi8-r;</span><br><span class="line">#服务日志</span><br><span class="line">        #access_log  logs/host.access.log  main;</span><br><span class="line"></span><br><span class="line">        # location / &#123;</span><br><span class="line">        #     root   html;</span><br><span class="line">        #     index  index.html index.htm;</span><br><span class="line">        # &#125;</span><br><span class="line"></span><br><span class="line">        #error_page  404              /404.html; </span><br><span class="line"></span><br><span class="line">        # redirect server error pages to the static page /50x.html</span><br><span class="line">        #</span><br><span class="line">        #错误日志，最后的是标识错误之后跳转到哪去</span><br><span class="line">        error_page   500 502 503 504  /50x.html;</span><br><span class="line">        #这里我是监控的本地localhost的80端口，然后代理到百度去了，挺简单的测试</span><br><span class="line">        location / &#123;</span><br><span class="line">            proxy_pass http://www.baidu.com;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        # proxy the PHP scripts to Apache listening on 127.0.0.1:80</span><br><span class="line">        #</span><br><span class="line">        #这里 location 后面加了正则表达式 会去匹配请求地址，然后如果匹配上则去请求proxy_pass后的服务器</span><br><span class="line">        #比如现在做的项目里面，有静态资源服务器，和处理请求的服务器，匹配的是.htm和.json会走不同的服务器</span><br><span class="line">        #location ~ \.php$ &#123;</span><br><span class="line">        #    proxy_pass   http://127.0.0.1;</span><br><span class="line">        #    deny 127.0.0.1;  #表示要拒绝的IP</span><br><span class="line">        # allow 172.18.5.54; #表示允许的IP</span><br><span class="line">        #&#125;</span><br><span class="line"></span><br><span class="line">        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</span><br><span class="line">        #</span><br><span class="line">        #location ~ \.php$ &#123;</span><br><span class="line">        #    root           html;</span><br><span class="line">        #    fastcgi_pass   127.0.0.1:9000;</span><br><span class="line">        #    fastcgi_index  index.php;</span><br><span class="line">        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;</span><br><span class="line">        #    include        fastcgi_params;</span><br><span class="line">        #&#125;</span><br><span class="line"></span><br><span class="line">        # deny access to .htaccess files, if Apache&apos;s document root</span><br><span class="line">        # concurs with nginx&apos;s one</span><br><span class="line">        #</span><br><span class="line">        #location ~ /\.ht &#123;</span><br><span class="line">        #    deny  all;</span><br><span class="line">        #&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="谈一下负载均衡的调度算法"><a href="#谈一下负载均衡的调度算法" class="headerlink" title="谈一下负载均衡的调度算法"></a>谈一下负载均衡的调度算法</h3><h5 id="轮询算法："><a href="#轮询算法：" class="headerlink" title="轮询算法："></a>轮询算法：</h5><p>将用户的请求平均分配到web集群的每个节点，这个算法不会考虑每个节点的性能，所以一般用于每个节点性能一样的情况下</p><h5 id="权重算法："><a href="#权重算法：" class="headerlink" title="权重算法："></a>权重算法：</h5><p>给单个节点加权，使他被分配的几率提高</p><h5 id="ip-hash算法："><a href="#ip-hash算法：" class="headerlink" title="ip_hash算法："></a>ip_hash算法：</h5><p>根据用户的IP地址生成一个hash表，然后根据一样的IP地址分配到同一个服务器节点上，这样可以解决session共享的问题</p><h5 id="url-hash算法"><a href="#url-hash算法" class="headerlink" title="url_hash算法"></a>url_hash算法</h5><p>根据用户访问的url生成的hash表，使同一个url访问后端的同一个服务器</p><h5 id="fair"><a href="#fair" class="headerlink" title="fair"></a>fair</h5><p>根据后端响应的时间来分配请求，响应时间越快，则优先分配，意思是则优分配，需要下载nginx的upstream_fair模块</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;前段时间刷知乎，看到两张图&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/Nginx简单操作/1.jpg&quot; alt&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/Nginx简单操作/2.jpg&quot; alt&gt;&lt;/p&gt;
-&lt;p&gt;这两幅图说明了正向代理和反向代理的区别&lt;/p&gt;
-&lt;h3 id=&quot;正向代理
-      
-    
-    </summary>
-    
-      <category term="Nginx" scheme="https://Zhucong123.github.io/categories/Nginx/"/>
-    
-    
-      <category term="Nginx" scheme="https://Zhucong123.github.io/tags/Nginx/"/>
     
   </entry>
   
